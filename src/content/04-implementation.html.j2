@@ -1,0 +1,99 @@
+<h2>4. Implementation</h2>
+
+<p>This section provides an overview of the implementation details for the software project. It outlines the programming languages, dependencies, integrated services, files, protocols, and development documentation that have been used or created as part of the development process. Understanding these aspects is essential for ensuring that the software is well-structured, maintainable, and interoperable with other systems.</p>
+
+<h3>4.1. Programming Languages</h3>
+
+{%- if data.smp.implementation.programmingLanguages|length > 0 -%}
+<p>The software project has been developed using the following programming languages:</p>
+<ul>
+{%- for language in data.smp.implementation.programmingLanguages -%}
+    <li>
+        <strong>{{ language.name }}</strong>{% if language.description %}: {{ language.description }}{% endif %}
+        {% if language.usesPackaging == True %}
+            {% if language.packagingTool %}
+                <br>We will be creating software packages using the <strong>{{ language.packagingTool }}</strong> packaging tool.
+            {% else %}
+                <br>We will be creating software packages using a packaging tool.
+            {% endif %}
+        {% elif language.usesPackaging == False %}
+            <br>We will not be creating software packages for this software project.
+        {% endif %}
+    </li>
+{%- endfor -%}
+</ul>
+{%- else -%}
+<p>No specific programming languages have been identified (yet) for this software project.</p>
+{%- endif -%}
+
+<h3>4.2. Dependencies</h3>
+
+{%- if data.smp.implementation.dependencies.uses == True -%}
+    <p>
+    The software project will use external dependencies.
+    {% if data.smp.implementation.dependencies.licenseChecking %}
+        We will be checking the licenses of these dependencies to ensure compliance with the project's licensing requirements. {{ data.smp.implementation.dependencies.licenseChecking|dot }}
+    {% endif %}
+    </p>
+    <p>The software project has the following dependencies:</p>
+    <ul>
+        {%- for dependency in data.smp.implementation.dependencies.externalDependencies -%}
+        <li><strong>{{ dependency }}</strong></li>
+        {%- endfor -%}
+    </ul>
+{%- elif data.smp.implementation.dependencies.uses == False -%}
+    <p>The software project does not use any external dependencies.</p>
+{%- else -%}
+    <p>No specific dependencies have been identified yet for this software project.</p>
+{%- endif -%}
+
+<h3>4.3. Integrated Services</h3>
+
+{%- if data.smp.implementation.integratedServices.uses -%}
+<p>The software project has integrated the following services:</p>
+<ul>
+    {%- for service in data.smp.implementation.integratedServices.externalServices -%}
+    <li><strong>{{ service.name }}</strong>{% if service.description %}: {{ service.description }}{% endif %}</li>
+    {%- endfor -%}
+</ul>
+{%- else -%}
+<p>No specific integrated services have been identified (yet) for this software project.</p>
+{%- endif -%}
+
+<h3>4.4. Files</h3>
+
+{%- if data.smp.implementation.files.uses -%}
+<p>The software project uses the following file formats:</p>
+<ul>
+    {%- for fileFormat in data.smp.implementation.files.fileFormats -%}
+    <li><strong>{{ fileFormat.name }}</strong>: {% if fileFormat.usesAs %}{{ fileFormat.usesAs|join(", ")|lower }}{% endif %}</li>
+    {%- endfor -%}
+</ul>
+{%- else -%}
+<p>No specific file formats have been identified yet for this software project.</p>
+{%- endif -%}
+
+<h3>4.5. Protocols</h3>
+
+{%- if data.smp.implementation.protocols.uses -%}
+<p>The software project uses the following protocols:</p>
+<ul>
+    {%- for protocol in data.smp.implementation.protocols.protocols -%}
+    <li><strong>{{ protocol.name }}</strong>{% if protocol.description %}: {{ protocol.description }}{% endif %}{% if protocol.type %} ({{ protocol.type }}){% endif %}</li>
+    {%- endfor -%}
+</ul>
+{%- else -%}
+<p>No specific protocols have been identified yet for this software project.</p>
+{%- endif -%}
+
+<h3>4.6. Development Documentation</h3>
+
+{%- if data.smp.implementation.devDocs.uses -%}
+<p>The software project has the following development documentation:</p>
+<ul>
+    <li>Types: {{ data.smp.implementation.devDocs.types|join(", ") }}</li>
+    <li>Location: {{ data.smp.implementation.devDocs.location }}</li>
+</ul>
+{%- else -%}
+<p>No specific development documentation has been identified yet for this software project.</p>
+{%- endif -%}

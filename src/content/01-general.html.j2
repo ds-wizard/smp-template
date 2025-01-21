@@ -1,0 +1,53 @@
+<h2>1. General Information</h2>
+
+<p>This introductory section provides an overview of the software {% if data.smp.general.name %}<strong>{{ data.smp.general.name }}</strong>{% else %}<em>(yet to be named)</em>{% endif %}, including its name and other basic attributes. By understanding these foundational details, stakeholders can gain a clear perspective on the software's role and value in its intended context.</p>
+
+<table class="table-general">
+    <thead></thead>
+    <tbody>
+        <tr>
+            <th>Name</th>
+            <td>{%- if data.smp.general.name -%}{{ data.smp.general.name }}{%- endif -%}</td>
+        </tr>
+        <tr>
+            <th>Shortname</th>
+            <td>{%- if data.smp.general.hasShortName and data.smp.general.shortname -%}{{ data.smp.general.shortname }}{%- else -%}<em>(shortname not specified)</em>{%- endif -%}</td>
+        </tr>
+        <tr>
+            <th>Tagline</th>
+            <td>{%- if data.smp.general.tagline -%}{{ data.smp.general.tagline }}{%- endif -%}</td>
+        </tr>
+        <tr>
+            <th>Homepage</th>
+            <td>{%- if data.smp.general.tagline -%}{{ data.smp.general.tagline }}{%- endif -%}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>{%- if data.smp.general.description -%}{{ data.smp.general.description }}{%- endif -%}</td>
+        </tr>
+        <tr>
+            <th>Keywords</th>
+            <td>
+            {% if data.smp.general.keywords %}
+                {% for keyword in data.smp.general.keywords %}
+                    <span class="keyword">{{ keyword }}</span>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                <em>(no keywords specified)</em>
+            {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Categories</th>
+            <td>
+            {% if data.smp.general.categories %}
+                {% for category in data.smp.general.categories %}
+                    <span class="category">{% if category.url %}<a href="{{ category.url }}" target="_blank">{{ category.name }}</a>{% else %}{{ category.name }}{% endif %}</span>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                <em>(no categories specified)</em>
+            {% endif %}
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -1,0 +1,890 @@
+{%- import "src/mapping/prepare-data.j2" as data with context -%}
+{#- default object -#}
+{%- set result = {
+    "smp": {
+        "general": {
+            "name": None,
+            "hasShortName": None,
+            "shortName": None,
+            "tagline": None,
+            "description": None,
+            "keywords": [],
+            "categories": [],
+            "hasHomepage": None,
+            "homepage": None,
+        },
+        "collaboration": {
+            "contributors": [],
+            "licenses": [],
+        },
+        "analysisDesign": {
+            "targetAudience": None,
+            "softwareTypes": [],
+            "features": [],
+            "interfaces": None,
+        },
+        "implementation": {
+            "programmingLanguages": [],
+            "dependencies": {
+                "uses": None,
+                "licenseChecking": None,
+                "externalDependencies": [],
+            },
+            "integratedServices": {
+                "uses": None,
+                "externalServices": [],
+            },
+            "files": {
+                "uses": None,
+                "fileFormats": [],
+            },
+            "protocols": {
+                "uses": None,
+                "protocols": [],
+            },
+            "devDocs": {
+                "uses": None,
+                "types": [],
+                "location": None,
+            }
+        },
+        "testingQa": {
+            "automated": {
+                "uses": None,
+                "types": [],
+                "ci": None,
+                "passBeforeMerge": None,
+                "reason": None,
+            },
+            "manual": {
+                "uses": None,
+                "types": [],
+                "docs": None,
+            },
+            "staticAnalysis": {
+                "uses": None,
+                "types": None,
+                "description": None,
+                "ci": None,
+                "passBeforeMerge": None,
+                "reason": None,
+            },
+            "dynamicAnalysis": {
+                "uses": None,
+                "types": None,
+                "description": None,
+                "reason": None,
+            },
+            "security": {
+                "uses": None,
+                "types": None,
+                "description": None,
+                "reason": None,
+            },
+            "vulnerability": {
+                "uses": None,
+                "types": None,
+                "description": None,
+                "reason": None,
+            },
+            "codeReview": {
+                "uses": None,
+                "description": None,
+                "mandatory": None,
+                "howAssigned": None,
+                "aspects": [],
+                "hasChecklist": None,
+                "checklist": None,
+                "hasAutomation": None,
+                "automation": None,
+                "howConstructive": None,
+                "reason": None,
+            },
+            "sampleData": {
+                "hasSampleData": None,
+                "description": None,
+            },
+        },
+        "versioningReleases": {
+            "vcs": {
+                "uses": None,
+                "types": [],
+            },
+            "releases": {
+                "uses": None,
+                "schema": None,
+                "schemaOther": None,
+                "when": None,
+                "whenOther": None,
+            },
+            "pids": {
+                "uses": None,
+                "system": None,
+                "description": None,
+            },
+            "changelog": {
+                "uses": None,
+                "locations": [],
+                "usesTemplate": None,
+                "template": None,
+            },
+        },
+        "deploymentDelivery": {
+            "minRequirements": {
+                "uses": None,
+                "cpu": None,
+                "memory": None,
+                "storage": None,
+                "gpu": None,
+                "other": None,
+            },
+            "platforms": [],
+            "specialHardware": {
+                "needs": None,
+                "hardware": [],
+            },
+            "reproducibility": {
+                "uses": None,
+                "description": None,
+            },
+            "products": [],
+            "howDistributed": [],
+            "access": {
+                "isFree": None,
+                "paymentModel": None,
+                "paymentModelOther": None,
+            },
+            "userSupport": {
+                "uses": None,
+                "description": None
+            },
+        },
+    },
+    "meta": {
+        "document": {
+            "uuid": ctx.document.uuid,
+            "name": ctx.document.name,
+            "createdAt": ctx.document.createdAt,
+        },
+        "project": {
+            "uuid": ctx.questionnaire.uuid,
+            "name": ctx.questionnaire.name,
+            "description": ctx.questionnaire.description,
+            "tags": ctx.questionnaire.projectTags,
+            "url": ctx.config.clientUrl ~ "/projects/" ~ ctx.questionnaire.uuid,
+        },
+    },
+} -%}
+{#- Mapping -#}
+
+{#- Mapping [General Information] -#}
+{%- do result.smp.general.update({
+    "name": data.obj.name,
+    "description": data.obj.description,
+    "tagline": data.obj.tagline,
+    "keywords": data.obj.keywords|map(attribute="keyword")|list,
+}) -%}
+
+{%- for categoryItem in data.obj.categories -%}
+    {%- if categoryItem.category -%}
+        {%- do result.smp.general.categories.append({
+            "name": categoryItem.category._value,
+            "url": categoryItem.category._url|default(None),
+        }) -%}
+    {%- endif -%}
+{%- endfor -%}
+
+{%- if data.obj.hasShortName -%}
+    {%- if data.obj.hasShortName._value == "yes" -%}
+        {%- do result.smp.general.update({
+            "hasShortName": True,
+            "shortName": data.obj.hasShortName.shortName,
+        }) -%}
+    {%- elif data.obj.hasShortName._value == "no" -%}
+        {%- do result.smp.general.update({
+            "hasShortName": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+
+{%- if data.obj.hasHomepage -%}
+    {%- if data.obj.hasHomepage._value == "yes" -%}
+        {%- do result.smp.general.update({
+            "hasHomepage": True,
+            "homepage": data.obj.hasHomepage.homepage,
+        }) -%}
+    {%- elif data.obj.hasHomepage._value == "no" -%}
+        {%- do result.smp.general.update({
+            "hasHomepage": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+
+{#- Mapping [Collaboration] -#}
+{%- set contributorsMap = {} -%}
+{%- for contributorItem in data.obj.contributors -%}
+    {%- set contributor = {
+        "uuid": contributorItem._uuid,
+        "name": contributorItem.name,
+    } -%}
+
+    {%- if contributorItem.hasDescription -%}
+        {%- if contributorItem.hasDescription._value == "yes" -%}
+            {%- do contributor.update({
+                "hasDescription": True,
+                "description": contributorItem.hasDescription.description,
+            }) -%}
+        {%- elif contributorItem.hasDescription._value == "no" -%}
+            {%- do contributor.update({
+                "hasDescription": False,
+            }) -%}
+        {%- endif -%}
+    {%- endif -%}
+
+    {%- if contributorItem.type -%}
+        {%- if contributorItem.type._value == "person" -%}
+            {%- do contributor.update({
+                "type": "person",
+                "email": contributorItem.type.email,
+                "orcid": contributorItem.type.orcid,
+                "roles": contributorItem.type.roles|map(attribute="_label")|list,
+                "affiliations": [],
+            }) -%}
+            {%- for affiliationItem in contributorItem.type.affiliations -%}
+                {%- if affiliationItem.affiliation -%}
+                    {%- do contributor.affiliations.append({
+                        "name": affiliationItem.affiliation._value,
+                        "url": affiliationItem.affiliation._url|default(None),
+                    }) -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- elif contributorItem.type._value == "organization" -%}
+            {%- do contributor.update({
+                "type": "organization",
+                "website": contributorItem.type.website,
+                "roles": contributorItem.type.roles|map(attribute="_label")|list,
+                "identifier": None,
+            }) -%}
+            {%- if contributorItem.type.identifier -%}
+                {%- do contributor.update({
+                    "identifier": {
+                        "name": contributorItem.type.identifier._value,
+                        "url": contributorItem.type.identifier._url|default(None),
+                    },
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- endif -%}
+
+    {%- do result.smp.collaboration.contributors.append(contributor) -%}
+    {%- do contributorsMap.update({ contributor.uuid: contributor }) -%}
+{%- endfor -%}
+{%- for licenseItem in data.obj.licenses -%}
+    {%- if licenseItem.license -%}
+        {%- set license = {
+            "name": licenseItem.license._value,
+            "id": licenseItem.license._id|default(None),
+            "url": licenseItem.license._url|default(None),
+            "holders": [],
+        } -%}
+        {%- if licenseItem.holders -%}
+            {%- for holder in licenseItem.holders -%}
+                {%- if holder.holder and holder.holder in contributorsMap -%}
+                    {%- do license.holders.append(contributorsMap[holder.holder]) -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endif -%}
+        {%- do result.smp.collaboration.licenses.append(license) -%}
+    {%- endif -%}
+{%- endfor -%}
+
+{#- Mapping [Analysis and Design] -#}
+{%- do result.smp.analysisDesign.update({
+    "targetAudience": data.obj.targetAudience,
+    "interfaces": data.obj.interfaces,
+    "softwareTypes": data.obj.softwareType|map(attribute="_label")|list,
+}) -%}
+{%- for funcItem in data.obj.functionalities -%}
+    {%- if funcItem.functionality -%}
+        {%- do result.smp.analysisDesign.features.append(funcItem.functionality) -%}
+    {%- endif -%}
+{%- endfor -%}
+
+{#- Mapping [Implementation] -#}
+{%- for plItem in data.obj.programmingLanguages -%}
+    {%- if plItem.programmingLanguage -%}
+        {%- set pl = {
+            "name": plItem.programmingLanguage._value,
+            "url": plItem.programmingLanguage._url|default(None),
+            "description": plItem.howUsed,
+            "usesPackaging": None,
+            "packagingTool": None,
+        } -%}
+        {%- if plItem.usesPackaging -%}
+            {%- if plItem.usesPackaging._value == "yes" -%}
+                {%- do pl.update({
+                    "usesPackaging": True,
+                    "packagingTool": plItem.usesPackaging.packagingTool,
+                }) -%}
+            {%- elif plItem.usesPackaging._value == "no" -%}
+                {%- do pl.update({
+                    "usesPackaging": False,
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+
+        {%- do result.smp.implementation.programmingLanguages.append(pl) -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- if data.obj.hasDependencies -%}
+    {%- if data.obj.hasDependencies._value == "yes" -%}
+        {%- do result.smp.implementation.dependencies.update({
+            "uses": True,
+            "licenseChecking": data.obj.hasDependencies.licenseChecking|default(None),
+        }) -%}
+        {%- for depItem in data.obj.hasDependencies.dependencies -%}
+            {%- if depItem.dependency -%}
+                {%- do result.smp.implementation.dependencies.externalDependencies.append(depItem.dependency) -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- elif data.obj.hasDependencies._value == "no" -%}
+        {%- do result.smp.implementation.dependencies.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.integratesExternalServices -%}
+    {%- if data.obj.integratesExternalServices._value == "yes" -%}
+        {%- do result.smp.implementation.integratedServices.update({
+            "uses": True,
+        }) -%}
+        {%- for serviceItem in data.obj.integratesExternalServices.externalServices -%}
+            {%- if serviceItem.service -%}
+                {%- do result.smp.implementation.integratedServices.externalServices.append({
+                    "name": serviceItem.service,
+                    "reference": serviceItem.url|default(None),
+                    "description": serviceItem.description|default(None),
+                }) -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- elif data.obj.integratesExternalServices._value == "no" -%}
+        {%- do result.smp.implementation.integratedServices.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesFiles -%}
+    {%- if data.obj.usesFiles._value == "yes" -%}
+        {%- do result.smp.implementation.files.update({
+            "uses": True,
+        }) -%}
+        {%- for ffItem in data.obj.usesFiles.fileFormats -%}
+            {%- if ffItem.fileFormat -%}
+                {%- set ff = {
+                    "name": ffItem.fileFormat._value,
+                    "url": ffItem.fileFormat._url|default(None),
+                    "type": None,
+                    "usesAs": [],
+                } -%}
+                {%- if ffItem.type -%}
+                    {%- do ff.update({
+                        "type": ffItem.type._label,
+                    }) -%}
+                {%- endif -%}
+                {%- if ffItem.howUsed -%}
+                    {%- do ff.update({
+                        "usesAs": ffItem.howUsed|default([])|map(attribute="_label")|list,
+                    }) -%}
+                {%- endif -%}
+                {%- do result.smp.implementation.files.fileFormats.append(ff) -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- elif data.obj.usesFiles._value == "no" -%}
+        {%- do result.smp.implementation.files.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesProtocols -%}
+    {%- if data.obj.usesProtocols._value == "yes" -%}
+        {%- do result.smp.implementation.protocols.update({
+            "uses": True,
+            "protocols": [],
+        }) -%}
+        {%- for pItem in data.obj.usesProtocols.protocols -%}
+            {%- if pItem.protocol -%}
+                {%- set protocol = {
+                    "name": pItem.protocol._value,
+                    "url": pItem.protocol._url,
+                    "description": pItem.description|default(None),
+                    "type": None,
+                } -%}
+                {%- if pItem.type -%}
+                    {%- do protocol.update({
+                        "type": pItem.type._label
+                    }) -%}
+                {%- endif -%}
+                {%- do result.smp.implementation.protocols.protocols.append(protocol) -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- elif data.obj.usesProtocols._value == "no" -%}
+        {%- do result.smp.implementation.protocols.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.hasDevDocs -%}
+    {%- if data.obj.hasDevDocs._value == "yes" -%}
+        {%- do result.smp.implementation.devDocs.update({
+            "uses": True,
+            "location": data.obj.hasDevDocs.location|default(None),
+            "types": data.obj.hasDevDocs.types|default([])|map(attribute="_label")|list,
+        }) -%}
+    {%- elif data.obj.hasDevDocs._value == "no" -%}
+        {%- do result.smp.implementation.devDocs.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+
+{#- Mapping [Testing and QA] -#}
+{%- if data.obj.hasAutomatedTests -%}
+    {%- if data.obj.hasAutomatedTests._value == "yes" -%}
+        {%- do result.smp.testingQa.automated.update({
+            "uses": True,
+        }) -%}
+        {%- if data.obj.hasAutomatedTests.types -%}
+            {%- do result.smp.testingQa.automated.update({
+                "types": data.obj.hasAutomatedTests.types|map(attribute="_label")|list,
+            }) -%}
+        {%- endif -%}
+        {%- if data.obj.hasAutomatedTests.usesCI -%}
+            {%- if data.obj.hasAutomatedTests.usesCI._value == "yes" -%}
+                {%- do result.smp.testingQa.automated.update({
+                    "ci": True,
+                }) -%}
+                {%- if data.obj.hasAutomatedTests.usesCI.passBeforeMerge -%}
+                    {%- if data.obj.hasAutomatedTests.usesCI.passBeforeMerge._value == "yes" -%}
+                        {%- do result.smp.testingQa.automated.update({
+                            "passBeforeMerge": True,
+                        }) -%}
+                    {%- elif data.obj.hasAutomatedTests.usesCI.passBeforeMerge._value == "no" -%}
+                        {%- do result.smp.testingQa.automated.update({
+                            "passBeforeMerge": False,
+                        }) -%}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- elif data.obj.hasAutomatedTests.usesCI._value == "no" -%}
+                {%- do result.smp.testingQa.automated.update({
+                    "ci": False,
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- elif data.obj.hasAutomatedTests._value == "no" -%}
+        {%- do result.smp.testingQa.automated.update({
+            "uses": False,
+            "reason": data.obj.hasAutomatedTests.whyNot|default(None),
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.hasManualTests -%}
+    {%- if data.obj.hasManualTests._value == "yes" -%}
+        {%- do result.smp.testingQa.manual.update({
+            "uses": True,
+        }) -%}
+        {%- if data.obj.hasManualTests.types -%}
+            {%- do result.smp.testingQa.manual.update({
+                "types": data.obj.hasManualTests.types|map(attribute="_label")|list,
+            }) -%}
+        {%- endif -%}
+        {%- if data.obj.hasManualTests.hasDocumentation -%}
+            {%- if data.obj.hasManualTests.hasDocumentation._value == "yes" -%}
+                {%- do result.smp.testingQa.manual.update({
+                    "docs": True,
+                }) -%}
+            {%- elif data.obj.hasManualTests.hasDocumentation._value == "no" -%}
+                {%- do result.smp.testingQa.manual.update({
+                    "docs": False,
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- elif data.obj.hasManualTests._value == "no" -%}
+        {%- do result.smp.testingQa.manual.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesStaticAnalysis -%}
+    {%- if data.obj.usesStaticAnalysis._value == "yes" -%}
+        {%- do result.smp.testingQa.staticAnalysis.update({
+            "uses": True,
+            "description": data.obj.usesStaticAnalysis.description|default(None),
+        }) -%}
+        {%- if data.obj.usesStaticAnalysis.types -%}
+            {%- do result.smp.testingQa.staticAnalysis.update({
+                "types": data.obj.usesStaticAnalysis.types|map(attribute="_label")|list,
+            }) -%}
+        {%- endif -%}
+        {%- if data.obj.usesStaticAnalysis.usesCI -%}
+            {%- if data.obj.usesStaticAnalysis.usesCI._value == "yes" -%}
+                {%- do result.smp.testingQa.staticAnalysis.update({
+                    "ci": True,
+                }) -%}
+                {%- if data.obj.usesStaticAnalysis.usesCI.passBeforeMerge -%}
+                    {%- if data.obj.usesStaticAnalysis.usesCI.passBeforeMerge._value == "yes" -%}
+                        {%- do result.smp.testingQa.staticAnalysis.update({
+                            "passBeforeMerge": True,
+                        }) -%}
+                    {%- elif data.obj.usesStaticAnalysis.usesCI.passBeforeMerge._value == "no" -%}
+                        {%- do result.smp.testingQa.staticAnalysis.update({
+                            "passBeforeMerge": False,
+                        }) -%}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- elif data.obj.usesStaticAnalysis.usesCI._value == "no" -%}
+                {%- do result.smp.testingQa.staticAnalysis.update({
+                    "ci": False,
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- elif data.obj.usesStaticAnalysis._value == "no" -%}
+        {%- do result.smp.testingQa.staticAnalysis.update({
+            "uses": False,
+            "reason": data.obj.usesStaticAnalysis.whyNot|default(None),
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesDynamicAnalysis -%}
+    {%- if data.obj.usesDynamicAnalysis._value == "yes" -%}
+        {%- do result.smp.testingQa.dynamicAnalysis.update({
+            "uses": True,
+            "description": data.obj.usesDynamicAnalysis.description|default(None),
+        }) -%}
+        {%- if data.obj.usesDynamicAnalysis.types -%}
+            {%- do result.smp.testingQa.dynamicAnalysis.update({
+                "types": data.obj.usesDynamicAnalysis.types|map(attribute="_label")|list,
+            }) -%}
+        {%- endif -%}
+    {%- elif data.obj.usesDynamicAnalysis._value == "no" -%}
+        {%- do result.smp.testingQa.dynamicAnalysis.update({
+            "uses": False,
+            "reason": data.obj.usesDynamicAnalysis.whyNot|default(None),
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesSecurityTests -%}
+    {%- if data.obj.usesSecurityTests._value == "yes" -%}
+        {%- do result.smp.testingQa.security.update({
+            "uses": True,
+            "description": data.obj.usesSecurityTests.description|default(None),
+        }) -%}
+        {%- if data.obj.usesSecurityTests.types -%}
+            {%- do result.smp.testingQa.security.update({
+                "types": data.obj.usesSecurityTests.types|map(attribute="_label")|list,
+            }) -%}
+        {%- endif -%}
+    {%- elif data.obj.usesSecurityTests._value == "no" -%}
+        {%- do result.smp.testingQa.security.update({
+            "uses": False,
+            "reason": data.obj.usesSecurityTests.whyNot|default(None),
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesVulnerabilityTests -%}
+    {%- if data.obj.usesVulnerabilityTests._value == "yes" -%}
+        {%- do result.smp.testingQa.vulnerability.update({
+            "uses": True,
+            "description": data.obj.usesVulnerabilityTests.description|default(None),
+        }) -%}
+        {%- if data.obj.usesVulnerabilityTests.types -%}
+            {%- do result.smp.testingQa.vulnerability.update({
+                "types": data.obj.usesVulnerabilityTests.types|map(attribute="_label")|list,
+            }) -%}
+        {%- endif -%}
+    {%- elif data.obj.usesVulnerabilityTests._value == "no" -%}
+        {%- do result.smp.testingQa.vulnerability.update({
+            "uses": False,
+            "reason": data.obj.usesVulnerabilityTests.whyNot|default(None),
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesCodeReview -%}
+    {%- if data.obj.usesCodeReview._value == "yes" -%}
+        {%- do result.smp.testingQa.codeReview.update({
+            "uses": True,
+            "description": data.obj.usesCodeReview.description|default(None),
+        }) -%}
+        {%- if data.obj.usesCodeReview.isMandatory -%}
+            {%- do result.smp.testingQa.codeReview.update({
+                "mandatory": data.obj.usesCodeReview.isMandatory._value ,
+            }) -%}
+        {%- endif -%}
+        {%- if data.obj.usesCodeReview.howAssigned -%}
+            {%- do result.smp.testingQa.codeReview.update({
+                "howAssigned": data.obj.usesCodeReview.howAssigned._value ,
+            }) -%}
+        {%- endif -%}
+        {%- if data.obj.usesCodeReview.aspects -%}
+            {%- do result.smp.testingQa.codeReview.update({
+                "aspects": data.obj.usesCodeReview.aspects|map(attribute="_label")|list,
+            }) -%}
+        {%- endif -%}
+        {%- if data.obj.usesCodeReview.hasChecklist -%}
+            {%- if data.obj.usesCodeReview.hasChecklist._value == "yes" -%}
+                {%- do result.smp.testingQa.codeReview.update({
+                    "hasChecklist": True,
+                    "checklist": data.obj.usesCodeReview.hasChecklist.location|default(None),
+                }) -%}
+            {%- elif data.obj.usesCodeReview.hasChecklist._value == "no" -%}
+                {%- do result.smp.testingQa.codeReview.update({
+                    "hasChecklist": False,
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+        {%- if data.obj.usesCodeReview.hasAutomation -%}
+            {%- if data.obj.usesCodeReview.hasAutomation._value == "yes" -%}
+                {%- do result.smp.testingQa.codeReview.update({
+                    "hasAutomation": True,
+                    "automation": data.obj.usesCodeReview.hasAutomation.whatTools|default(None),
+                }) -%}
+            {%- elif data.obj.usesCodeReview.hasAutomation._value == "no" -%}
+                {%- do result.smp.testingQa.codeReview.update({
+                    "hasAutomation": False,
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+        {%- if data.obj.usesCodeReview.howConstructive -%}
+            {%- do result.smp.testingQa.codeReview.update({
+                "howConstructive": data.obj.usesCodeReview.howConstructive|default(None),
+            }) -%}
+        {%- endif -%}
+    {%- elif data.obj.usesCodeReview._value == "no" -%}
+        {%- do result.smp.testingQa.codeReview.update({
+            "uses": False,
+            "reason": data.obj.usesCodeReview.whyNot|default(None),
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.hasSampleData -%}
+    {%- if data.obj.hasSampleData._value == "yes" -%}
+        {%- do result.smp.testingQa.sampleData.update({
+            "hasSampleData": "yes",
+            "description": data.obj.hasSampleData.description|default(None),
+        }) -%}
+    {%- elif data.obj.hasSampleData._value == "no" -%}
+        {%- do result.smp.testingQa.sampleData.update({
+            "hasSampleData": "no",
+        }) -%}
+    {%- elif data.obj.hasSampleData._value == "na" -%}
+        {%- do result.smp.testingQa.sampleData.update({
+            "hasSampleData": "not-applicable",
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+
+{#- Mapping [Versioning and Releases] -#}
+{%- if data.obj.usesVCS -%}
+    {%- if data.obj.usesVCS._value == "yes" -%}
+        {%- do result.smp.versioningReleases.vcs.update({
+            "uses": True,
+        }) -%}
+        {%- if data.obj.usesVCS.vcs -%}
+            {%- do result.smp.versioningReleases.vcs.update({
+                "types": data.obj.usesVCS.vcs|map(attribute="_value")|list,
+            }) -%}
+        {%- endif -%}
+    {%- elif data.obj.usesVCS._value == "no" -%}
+        {%- do result.smp.versioningReleases.vcs.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesReleases -%}
+    {%- if data.obj.usesReleases._value == "yes" -%}
+        {%- do result.smp.versioningReleases.releases.update({
+            "uses": True,
+        }) -%}
+        {%- if data.obj.usesReleases.versioningScheme -%}
+            {%- do result.smp.versioningReleases.releases.update({
+                "schema": data.obj.usesReleases.versioningScheme._value,
+            }) -%}
+            {%- if data.obj.usesReleases.versioningScheme._value == "other" -%}
+                {%- do result.smp.versioningReleases.releases.update({
+                    "schemaOther": data.obj.usesReleases.versioningScheme.other|default(None),
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+        {%- if data.obj.usesReleases.howDecide -%}
+            {%- do result.smp.versioningReleases.releases.update({
+                "when": data.obj.usesReleases.howDecide._value,
+            }) -%}
+            {%- if data.obj.usesReleases.howDecide._value == "other" -%}
+                {%- do result.smp.versioningReleases.releases.update({
+                    "whenOther": data.obj.usesReleases.howDecide.other|default(None),
+                }) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- elif data.obj.usesReleases._value == "no" -%}
+        {%- do result.smp.versioningReleases.releases.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.usesPIDs -%}
+    {%- if data.obj.usesPIDs._value == "yes" -%}
+        {%- do result.smp.versioningReleases.pids.update({
+            "uses": True,
+            "description": data.obj.usesPIDs.description|default(None),
+        }) -%}
+        {%- if data.obj.usesPIDs.system -%}
+            {%- do result.smp.versioningReleases.pids.update({
+                "system": {
+                    "name": data.obj.usesPIDs.system._value,
+                    "url": data.obj.usesPIDs.system._url|default(None),
+                },
+            }) -%}
+        {%- endif -%}
+    {%- elif data.obj.usesPIDs._value == "no" -%}
+        {%- do result.smp.versioningReleases.pids.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.hasChangelog -%}
+    {%- if data.obj.hasChangelog._value == "yes" -%}
+        {%- do result.smp.versioningReleases.changelog.update({
+            "uses": True,
+        }) -%}
+        {%- if data.obj.hasChangelog.locations -%}
+            {%- do result.smp.versioningReleases.changelog.update({
+                "locations": data.obj.hasChangelog.locations|map(attribute="_value")|list,
+            }) -%}
+        {%- endif -%}
+        {%- if data.obj.hasChangelog.usesTemplate._value == "yes" -%}
+            {%- do result.smp.versioningReleases.changelog.update({
+                "usesTemplate": True,
+                "template": data.obj.hasChangelog.usesTemplate.template|default(None),
+            }) -%}
+        {%- elif data.obj.hasChangelog.usesTemplate._value == "no" -%}
+            {%- do result.smp.versioningReleases.changelog.update({
+                "usesTemplate": False,
+            }) -%}
+        {%- endif -%}
+    {%- elif data.obj.hasChangelog._value == "no" -%}
+        {%- do result.smp.versioningReleases.changelog.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+
+{#- Mapping [Deployment and Delivery] -#}
+{%- if data.obj.hasMinimalRequirements -%}
+    {%- if data.obj.hasMinimalRequirements._value == "yes" -%}
+        {%- do result.smp.deploymentDelivery.minRequirements.update({
+            "uses": True,
+            "cpu": data.obj.hasMinimalRequirements.cpu|default(None),
+            "memory": data.obj.hasMinimalRequirements.memory|default(None),
+            "storage": data.obj.hasMinimalRequirements.storage|default(None),
+            "gpu": data.obj.hasMinimalRequirements.gpu|default(None),
+            "other": data.obj.hasMinimalRequirements.other|default(None),
+        }) -%}
+    {%- elif data.obj.hasMinimalRequirements._value == "no" -%}
+        {%- do result.smp.deploymentDelivery.minRequirements.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.platforms -%}
+    {%- for pItem in data.obj.platforms -%}
+        {%- if pItem.platform -%}
+            {%- set platform = {
+                "name": pItem.platform,
+            } -%}
+            {%- if pItem.hasSpecificConcerns -%}
+                {%- if pItem.hasSpecificConcerns._value == "yes" -%}
+                    {%- do platform.update({
+                        "hasSpecificConcerns": True,
+                        "specificConcerns": pItem.hasSpecificConcerns.concerns|default(None),
+                    }) -%}
+                {%- elif pItem.hasSpecificConcerns._value == "no" -%}
+                    {%- do platform.update({
+                        "hasSpecificConcerns": False,
+                    }) -%}
+                {%- endif -%}
+            {%- endif -%}
+            {%- do result.smp.deploymentDelivery.platforms.append(platform) -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endif -%}
+{%- if data.obj.needsSpecialHardware -%}
+    {%- if data.obj.needsSpecialHardware._value == "yes" -%}
+        {%- do result.smp.deploymentDelivery.specialHardware.update({
+            "needs": True,
+        }) -%}
+        {%- if data.obj.needsSpecialHardware.hardware -%}
+            {%- for hwItem in data.obj.needsSpecialHardware.hardware -%}
+                {%- if hwItem.name -%}
+                    {%- do result.smp.deploymentDelivery.specialHardware.hardware.append({
+                        "name": hwItem.name,
+                        "description": hwItem.description|default(None),
+                    }) -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endif -%}
+    {%- elif data.obj.needsSpecialHardware._value == "no" -%}
+        {%- do result.smp.deploymentDelivery.specialHardware.update({
+            "needs": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.hasReproducibility -%}
+    {%- if data.obj.hasReproducibility._value == "yes" -%}
+        {%- do result.smp.deploymentDelivery.reproducibility.update({
+            "uses": True,
+            "description": data.obj.hasReproducibility.description|default(None),
+        }) -%}
+    {%- elif data.obj.hasReproducibility._value == "no" -%}
+        {%- do result.smp.deploymentDelivery.reproducibility.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.softwareProducts -%}
+    {%- do result.smp.deploymentDelivery.update({
+        "products": data.obj.softwareProducts|map(attribute="_value")|list,
+    }) -%}
+{%- endif -%}
+{%- if data.obj.howDistributed -%}
+    {%- do result.smp.deploymentDelivery.update({
+        "howDistributed": data.obj.howDistributed|map(attribute="_value")|list,
+    }) -%}
+{%- endif -%}
+{%- if data.obj.isFree -%}
+    {%- if data.obj.isFree._value == "yes" -%}
+        {%- do result.smp.deploymentDelivery.access.update({
+            "isFree": True,
+        }) -%}
+    {%- elif data.obj.isFree._value == "no" -%}
+        {%- do result.smp.deploymentDelivery.access.update({
+            "isFree": False,
+        }) -%}
+        {%- if data.obj.isFree.model %}
+            {%- do result.smp.deploymentDelivery.access.update({
+                "paymentModel": data.obj.isFree.model._value,
+                "paymentModelOther": data.obj.isFree.model.other|default(None),
+            }) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if data.obj.hasUserSupport -%}
+    {%- if data.obj.hasUserSupport._value == "yes" -%}
+        {%- do result.smp.deploymentDelivery.userSupport.update({
+            "uses": True,
+            "description": data.obj.hasUserSupport.description|default(None),
+        }) -%}
+    {%- elif data.obj.hasUserSupport._value == "no" -%}
+        {%- do result.smp.deploymentDelivery.userSupport.update({
+            "uses": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}

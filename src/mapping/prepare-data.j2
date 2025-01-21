@@ -1,0 +1,7 @@
+{%- set dc = ctx|to_context_obj -%}
+{%- set output = {} -%}
+
+{%- import 'src/mapping/annotations-simple.j2' as simple with context -%}
+{%- do simple.traverse() -%}
+
+{%- set obj = output -%}

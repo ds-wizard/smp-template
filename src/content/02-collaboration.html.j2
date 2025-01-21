@@ -1,0 +1,93 @@
+<h2>2. Collaboration and License</h2>
+
+This section highlights the collaborative efforts and licensing arrangements. It provides an overview of the individuals and organizations who contributed to its development and outlines the licenses under which the software operates. Understanding these details ensures transparency and proper acknowledgment of all contributors and stakeholders.
+
+<h3>2.1. Contributors</h3>
+
+{%- if data.smp.collaboration.contributors|length > 0 -%}
+For this software project, we currently list the following {% if data.smp.collaboration.contributors|length == 1 %}contributor{% else %}contributors{% endif %}:
+
+<ul>
+{%- for contributor in data.smp.collaboration.contributors -%}
+    <li class="contributor contributor-{{ contributor.type }}">
+        <span class="contributor-name"><strong>{{ contributor.name }}</strong></span>
+        {% if contributor.type == "person" %}
+            {{- " (" if contributor.email or contributor.orcid else "" -}}
+            {%- if contributor.email -%}
+                <span class="contributor-email"><a href="mailto:{{ contributor.email }}">{{ contributor.email }}</a></span>
+            {%- endif -%}
+            {{ ", " if contributor.email and contributor.orcid else "" }}
+            {%- if contributor.orcid -%}
+                <span class="contributor-orcid"><a href="https://orcid.org/{{ contributor.orcid }}" target="_blank">{{ contributor.orcid }}</a></span>
+            {%- endif -%}
+            {{- ") " if contributor.email and contributor.orcid else "" -}}
+            {% if contributor.affiliations|length > 0 %}
+                <br><em>Affiliations</em>: 
+                {% for affiliation in contributor.affiliations %}
+                <span class="contributor-affiliation">{{ affiliation.name }}</span>{% if not loop.last%}, {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% elif contributor.type == "organization" %}
+            {% if contributor.website %}
+                (<span class="contributor-website"><a href="{{ contributor.website }}" target=""_blank>{{ contributor.website }}</a></span>)
+            {% endif %}
+            {% if contributor.identifier %}
+                {% if contributor.identifier.url %}
+                    <br><em>ROR</em>: <a href="{{ contributor.identifier.url }}" target="_blank">{{ contributor.identifier.url }}</a>
+                {% else %}
+                    <br><em>Identifier</em>: {{ contributor.identifier.name }}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        <br><em>Roles</em>: {{ contributor.roles|join(", ") }}
+    </li>
+{%- endfor -%}
+</ul>
+{%- else -%}
+<p>No contributors has been specified yet for this software project.</p>
+{%- endif -%}
+
+<h3>2.2. Licenses</h3>
+
+{% if data.smp.collaboration.licenses|length == 1 %}
+    {% set license = data.smp.collaboration.licenses[0] %}
+    <p>The license used for this software project is <strong>{{ license.name }}</strong>. {%- if license.url %}It is a standard license listed in the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>: <a href="{{ license.url }}" target="_blank">{{ license.id }}</a>.{% else %}It is not a standard license (not selected from the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>).{% endif %}
+
+    {% if license.holders|length == 1 %}
+    The license holder is <strong>{{ license.holders[0].name }}</strong></p>
+    {% elif license.holders|length > 1 %}
+    There are several license holders listed below:</p>
+    <ul>
+        {%- for holder in license.holders %}
+        <li>{{ holder.name }}</li>
+        {%- endfor %}
+    </ul>
+    {% else %}
+    The license holders are not yet specified.</p>
+    {% endif %}
+{% elif data.smp.collaboration.licenses|length > 1 %}
+    {% set licenses = data.smp.collaboration.licenses %}
+    <p>The software project uses multiple licenses:</p>
+    <ul>
+        {%- for license in licenses -%}
+        <li>
+            <strong>{{ license.name }}</strong>
+            <br>
+            {%- if license.url %}It is a standard license listed in the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>: <a href="{{ license.url }}" target="_blank">{{ license.id }}</a>.{% else %}It is not a standard license (not selected from the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>).{% endif %}
+            {% if license.holders|length == 1 %}
+                The holder for this license is <strong>{{ license.holders[0].name }}</strong>.</li>
+            {% elif license.holders|length > 1 %}
+                There are several license holders:
+                {%- for holder in license.holders -%}
+                <strong>{{ holder.name }}</strong>{% if not loop.last %}, {% endif %}
+                {%- endfor -%}
+            {% else %}
+            The license holders are not yet specified.
+            {% endif %}
+        </li>
+        {%- endfor -%}
+    </ul>
+{% else %}
+<p>No license has been yet selected for this software project.</p>
+{% endif %}
+

@@ -1,0 +1,45 @@
+<h2>3. Analysis and Design</h2>
+
+<p>This section provides an overview of the analysis and design considerations for the software project. It outlines the target audience, software types, features, and interfaces that have been identified as part of the development process. Understanding these aspects is essential for ensuring that the software meets the needs and expectations of its intended users.</p>
+
+<h3>3.1. Target Audience</h3>
+
+{%- if data.smp.analysisDesign.targetAudience -%}
+<p>{{ data.smp.analysisDesign.targetAudience }}</p>
+{%- else -%}
+<p>No specific target audience has been identified (yet) for this software project.</p>
+{%- endif -%}
+
+<h3>3.2. Software Types</h3>
+
+{%- if data.smp.analysisDesign.softwareTypes|length > 0 -%}
+<p>The software project has been classified into the following software types:</p>
+<ul>
+{%- for softwareType in data.smp.analysisDesign.softwareTypes -%}
+    <li>{{ softwareType }}</li>
+{%- endfor -%}
+</ul>
+{%- else -%}
+<p>No specific software types have been identified (yet) for this software project.</p>
+{%- endif -%}
+
+<h3>3.3. Features</h3>
+
+{%- if data.smp.analysisDesign.features|length > 0 -%}
+<p>The software project includes the following features:</p>
+<ul>
+{%- for feature in data.smp.analysisDesign.features -%}
+    <li>{{ feature }}</li>
+{%- endfor -%}
+</ul>
+{%- else -%}
+<p>No specific features have been identified (yet) for this software project.</p>
+{%- endif -%}
+
+<h3>3.4. Interfaces</h3>
+
+{%- if data.smp.analysisDesign.interfaces -%}
+<p>{{ data.smp.analysisDesign.interfaces }}</p>
+{%- else -%}
+<p>No specific interfaces have been identified (yet) for this software project.</p>
+{%- endif -%}

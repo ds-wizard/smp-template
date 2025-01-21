@@ -1,0 +1,165 @@
+{#- Globals: dc, output -#}
+{#- to be extracted into document worker plugin as filter available in templates -#}
+{%- set objects = {} -%}
+
+{%- macro traverse() -%}
+    {%- do output.update({'_debug':{'traverse': 'simple'}}) -%}
+
+    {%- do objects.update({'root': output}) -%}
+    {%- for chapter in dc.km.chapters -%}
+        {%- do visitChapter('root', chapter) -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro visitChapter(key, chapter) -%}
+    {%- for question in chapter.questions -%}
+        {%- do visitQuestion(key, question, chapter.uuid) -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro visitQuestion(key, question, path) -%}
+    {%- set path = path ~ '.' ~ question.uuid %}
+    {%- if question.type == 'ValueQuestion' -%}
+        {%- do visitValueQuestion(key, question, path) -%}
+    {%- elif question.type == 'IntegrationQuestion' -%}
+        {%- do visitIntegrationQuestion(key, question, path) -%}
+    {%- elif question.type == 'OptionsQuestion' -%}
+        {%- do visitOptionsQuestion(key, question, path) -%}
+    {%- elif question.type == 'MultiChoiceQuestion' -%}
+        {%- do visitMultiChoiceQuestion(key, question, path) -%}
+    {%- elif question.type == 'ListQuestion' -%}
+        {%- do visitListQuestion(key, question, path) -%}
+    {%- elif question.type == 'ItemSelectQuestion' -%}
+        {%- do visitItemSelectQuestion(key, question, path) -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro visitValueQuestion(key, question, path) -%}
+    {%- set jsonKey = question.annotations.get('json.key', None) -%}
+    {%- set reply = dc.replies.get(path, None) -%}
+
+    {%- if jsonKey is not none  -%}
+        {%- if reply is none -%}
+            {%- do objects[key].update({ jsonKey: None }) -%}
+        {%- else -%}
+            {%- do objects[key].update({ jsonKey: reply.value }) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro visitIntegrationQuestion(key, question, path) -%}
+    {%- set jsonKey = question.annotations.get('json.key', None) -%}
+    {%- set reply = dc.replies.get(path, None) -%}
+
+    {%- if jsonKey is not none  -%}
+        {%- if reply is none -%}
+            {%- do objects[key].update({ jsonKey: None }) -%}
+        {%- elif reply.is_plain -%}
+            {%- do objects[key].update({ jsonKey: { '_value': reply.value }}) -%}
+        {%- else -%}
+            {%- do objects[key].update({ jsonKey: { '_value': reply.value, '_id': reply.id, '_url': reply.url }}) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro visitOptionsQuestion(key, question, path) -%}
+    {%- set jsonKey = question.annotations.get('json.key', None) -%}
+    {%- set reply = dc.replies.get(path, None) -%}
+
+    {%- if jsonKey is not none  -%}
+        {%- if reply is none -%}
+            {%- do objects[key].update({ jsonKey: None }) -%}
+        {%- else -%}
+            {%- set answerPath = path ~ '.' ~ reply.answer_uuid -%}
+
+            {%- if 'json.value' in reply.answer.annotations -%}
+                {%- do objects.update({ answerPath: {
+                    '_uuid': reply.answer_uuid,
+                    '_label': reply.answer.label,
+                    '_value': reply.answer.annotations.get('json.value'),
+                }}) -%}
+            {%- else -%}
+                {%- do objects.update({ answerPath: {
+                    '_uuid': reply.answer_uuid,
+                    '_label': reply.answer.label,
+                    '_value': None,
+                }}) -%}
+            {%- endif -%}
+            
+            {%- for question in reply.answer.followups -%}
+                {%- do visitQuestion(answerPath, question, answerPath) -%}
+            {%- endfor -%}
+
+            {%- do objects[key].update({ jsonKey: objects[answerPath] }) -%}
+        {%- endif -%}
+    {%- elif reply is not none -%}
+        {%- set answerPath = path ~ '.' ~ reply.answer_uuid -%}
+        {%- for question in question.followups -%}
+            {%- do visitQuestion(key, question, answerPath) -%}
+        {%- endfor -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro visitMultiChoiceQuestion(key, question, path) -%}
+    {%- set jsonKey = question.annotations.get('json.key', None) -%}
+    {%- set reply = dc.replies.get(path, None) -%}
+
+    {%- if jsonKey is not none  -%}
+        {%- if reply is none -%}
+            {%- do objects[key].update({ jsonKey: [] }) -%}
+        {%- else -%}
+            {%- set choices = [] -%}
+            {%- for choice in reply.choices -%}
+                {%- if 'json.value' in choice.annotations -%}
+                    {%- do choices.append({
+                        '_uuid': choice.uuid,
+                        '_label': choice.label, 
+                        '_value': choice.annotations.get('json.value'),
+                    }) -%}
+                {%- else -%}
+                    {%- do choices.append({
+                        '_uuid': choice.uuid,
+                        '_label': choice.label, 
+                        '_value': None,
+                    }) -%}
+                {%- endif -%}
+            {%- endfor -%}
+            {%- do objects[key].update({ jsonKey: choices }) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro visitListQuestion(key, question, path) -%}
+    {%- set jsonKey = question.annotations.get('json.key', None) -%}
+    {%- set reply = dc.replies.get(path, None) -%}
+
+    {%- if jsonKey is not none  -%}
+        {%- if reply is none -%}
+            {%- do objects[key].update({ jsonKey: [] }) -%}
+        {%- else -%}
+            {%- set items = [] -%}
+            {%- for itemUuid in reply.value -%}
+                {%- set itemPath = path ~ "." ~ itemUuid -%}
+                {%- do objects.update({ itemPath: { '_uuid': itemUuid }}) -%}
+                {%- for question in question.followups -%}
+                    {%- do visitQuestion(itemPath, question, itemPath) -%}
+                {%- endfor -%}
+                {%- do items.append(objects[itemPath]) -%}
+            {%- endfor -%}
+            {%- do objects[key].update({ jsonKey: items }) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro visitItemSelectQuestion(key, question, path) -%}
+    {%- set jsonKey = question.annotations.get('json.key', None) -%}
+    {%- set reply = dc.replies.get(path, None) -%}
+
+    {%- if jsonKey is not none  -%}
+        {%- if reply is none -%}
+            {%- do objects[key].update({ jsonKey: None }) -%}
+        {%- else -%}
+            {%- do objects[key].update({ jsonKey: reply.value }) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}

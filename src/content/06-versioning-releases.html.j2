@@ -1,0 +1,138 @@
+<h2>6. Versioning and Releases</h2>
+
+<p>This section provides an overview of the versioning and release management practices for the software project. It outlines the version control system (VCS) used, the release schema, persistent identifiers (PIDs), and changelog practices that have been implemented as part of the development process. Understanding these aspects is essential for ensuring that the software is well-documented, traceable, and maintainable over time.</p>
+
+<h3>6.1. Version Control System (VCS)</h3>
+
+{%- if data.smp.versioningReleases.vcs.uses == True -%}
+<p>
+{% set vcsTypes = [] -%}
+{%- if data.smp.versioningReleases.vcs.types -%}
+    {%- if "git" in data.smp.versioningReleases.vcs.types %}
+        {%- do vcsTypes.append("Git") -%}
+    {%- endif %}
+    {%- if "subversion" in data.smp.versioningReleases.vcs.types %}
+        {%- do vcsTypes.append("Subversion (SVN)") -%}
+    {%- endif %}
+    {%- if "mercurial" in data.smp.versioningReleases.vcs.types %}
+        {%- do vcsTypes.append("Mercurial") -%}
+    {%- endif %}
+    {%- if "other" in data.smp.versioningReleases.vcs.types %}
+        {%- do vcsTypes.append("other") -%}
+    {%- endif %}
+{%- endif -%}
+{%- if vcsTypes|length == 1 -%}
+    The software project uses the following version control system: <strong>{{ vcsTypes[0] }}</strong>. It will be used to track changes to the software project's source code and other artifacts efficiently.
+{%- elif vcsTypes|length > 1 -%}
+    The software project uses the following version control systems: {% for type in vcsTypes %}<strong>{{ type }}</strong>{% if not loop.last %}, {% endif %}{% endfor %}. Those will be used to track changes to the software project's source code and other artifacts efficiently. Multiple VCSs are used to accommodate different development workflows and collaboration models.
+{%- else -%}
+    The software project will use a version control system to track changes to the software project's source code and other artifacts efficiently.
+{%- endif -%}
+</p>
+{%- elif data.smp.versioningReleases.vcs.uses == False -%}
+    <p>This software project does not use a version control system to track changes. It has not been identified as needed for the development process.</p>
+{%- else -%}
+    <p>No specific version control system has been considered for this software project.</p>
+{%- endif -%}
+
+<h3>6.2. Releases</h3>
+
+{%- if data.smp.versioningReleases.releases.uses == True -%}
+<p>
+There will be version releases for this software project.
+{% if data.smp.versioningReleases.releases.schema %}
+    {% if data.smp.versioningReleases.releases.schema == "semver" %}
+        We will use the <strong>Semantic Versioning (SemVer)</strong> schema to manage software versions and releases efficiently. It will guide the development and release process by defining clear version numbers and release types (major, minor, patch).
+    {% elif data.smp.versioningReleases.releases.schema == "calver" %}
+        We will use the <strong>Calendar Versioning (CalVer)</strong> schema to manage software versions and releases efficiently. It will guide the development and release process by defining clear version according to release dates.
+    {% elif data.smp.versioningReleases.releases.schema == "other" %}
+        {% if data.smp.versioningReleases.releases.schemaOther %}
+            We will use a custom versioning schema to manage software versions and releases: {{ data.smp.versioningReleases.releases.schemaOther }}.
+        {% else %}
+            We will use a custom versioning schema to manage software versions and releases.
+        {% endif %}
+    {% endif %}
+{% endif  %}
+{% if data.smp.versioningReleases.releases.when %}
+    {% if data.smp.versioningReleases.releases.when == "periodic" %}
+        The software project will have <strong>periodic releases</strong> according to a predefined schedule. This approach ensures that new features and bug fixes are released at regular intervals, providing a predictable release cycle for users and stakeholders.
+    {% elif data.smp.versioningReleases.releases.when == "features" %}
+        The software project will have <strong>feature-based releases</strong>, where new features and enhancements are bundled together and released as a new version. This approach allows for the incremental development and release of new functionality, ensuring that users have access to the latest features as they become available.
+    {% elif data.smp.versioningReleases.releases.when == "adhoc" %}
+        The software project will have <strong>ad-hoc releases</strong>, where new versions are released as needed to address critical issues, security vulnerabilities, or other urgent requirements. This approach allows for the rapid deployment of fixes and updates without waiting for a predefined release schedule.
+    {% elif data.smp.versioningReleases.releases.when == "other" %}
+        {% if data.smp.versioningReleases.releases.whenOther %}
+            The software project will have releases according to a custom schedule and criteria: <strong>{{ data.smp.versioningReleases.releases.whenOther }}</strong>.
+        {% else %}
+            The software project will have releases according to a custom schedule and criteria.
+        {% endif %}
+    {% endif %}
+{% endif %}
+</p>
+{%- elif data.smp.versioningReleases.releases.uses == False -%}
+<p>This software project does not use a releases to manage software versions. Such versioning is not considered necessary for the development of this project.</p>
+{%- else -%}
+<p>It has not been decided whether this software project uses a releases (and if so, which release schema) to manage software versions.</p>
+{%- endif -%}
+
+<h3>6.3. Persistent Identifiers (PIDs)</h3>
+
+{%- if data.smp.versioningReleases.pids.uses == True -%}
+<p>
+    PIDs are used to track software versions and releases. It promotes the discoverability, citability, and long-term preservation of software artifacts.
+    {% if data.smp.versioningReleases.pids.system %}
+    The software project uses persistent identifiers (PIDs) to track software versions and releases. The following PID system is used: <strong>{{ data.smp.versioningReleases.pids.system.name }}</strong>.
+    {% else %}
+    The software project uses persistent identifiers (PIDs) to track software versions and releases.
+    {% endif %}
+    {% if data.smp.versioningReleases.pids.description %}
+    {{ data.smp.versioningReleases.pids.description|dot }}
+    {% endif %}
+</p>
+{%- elif data.smp.versioningReleases.pids.uses == False -%}
+<p>This software project does not use persistent identifiers (PIDs) to track software versions and releases. It appears as not needed for the project at this point.</p>
+{%- else -%}
+<p>It has not been decided whether this software project uses persistent identifiers (PIDs) to track software versions and releases.</p>
+{%- endif -%}
+
+<h3>6.4. Changelog</h3>
+
+{% if data.smp.versioningReleases.changelog.uses == True %}
+<p>
+    A changelog is used to document changes to the software project over time. It provides a detailed history of version releases, bug fixes, new features, and other modifications made to the software.
+    {% if data.smp.versioningReleases.changelog.locations %}
+        {%- set locations = [] -%}
+        {%- if "repo" in data.smp.versioningReleases.changelog.locations -%}
+            {%- do locations.append("the repository") -%}
+        {%- endif -%}
+        {%- if "website" in data.smp.versioningReleases.changelog.locations -%}
+            {%- do locations.append("the project website") -%}
+        {%- endif -%}
+        {%- if "software" in data.smp.versioningReleases.changelog.locations -%}
+            {%- do locations.append("as part of the software package") -%}
+        {%- endif %}
+        {% if locations|length == 1 %}
+            The changelog will be maintained in {{ locations[0] }}.
+        {% elif locations|length == 2 %}
+            The changelog will be maintained in {{ locations[0] }} and {{ locations[1] }}.
+        {% elif locations|length == 3 %}
+            The changelog will be maintained in {{ locations[0] }}, {{ locations[1] }}, and {{ locations[2] }}.
+        {% endif %}
+    {% endif %}
+    {% if data.smp.versioningReleases.changelog.usesTemplate == True %}
+        {%  if data.smp.versioningReleases.changelog.template %}
+            We will use a template to structure (specifically <strong>{{ data.smp.versioningReleases.changelog.template }}</strong>) the changelog entries consistently. This approach ensures that the changelog is easy to read, understand, and maintain over time.
+        {% else %}
+            We will use a template to structure the changelog entries consistently. This approach ensures that the changelog is easy to read, understand, and maintain over time.
+        {% endif %}
+    {% elif data.smp.versioningReleases.changelog.usesTemplate == False %}
+        No specific changelog template will be used to structure the changelog entries consistently. We will structure the changelog entries as needed according to the development and changes made.
+    {% else %}
+        No specific changelog template has been considered yet for this software project.
+    {% endif %}
+</p>
+{% elif data.smp.versioningReleases.changelog.uses == False %}
+<p>This software project does not maintain a changelog to document changes to the software project over time. It has not been identified as needed for the development process.</p>
+{% else %}
+<p>No specific changelog or similar measures to document changes has been considered yet for this software project.</p>
+{% endif %}

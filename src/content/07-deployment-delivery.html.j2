@@ -1,0 +1,228 @@
+<h2>7. Deployment and Delivery</h2>
+
+{# TODO section from data.smp.deploymentDelivery
+
+"deploymentDelivery": {
+            "minRequirements": {
+                "uses": None,
+                "cpu": None,
+                "memory": None,
+                "storage": None,
+                "gpu": None,
+                "other": None,
+            },
+            "platforms": [],
+            "specialHardware": {
+                "needs": None,
+                "hardware": [],
+            },
+            "reproducibility": {
+                "uses": None,
+                "description": None,
+            },
+            "products": [],
+            "howDistributed": [],
+            "access": {
+                "isFree": None,
+                "paymentModel": None,
+                "paymentModelOther": None,
+            },
+            "userSupport": {
+                "uses": None,
+                "description": None
+            },
+        }
+#}
+
+<p>This section describes the deployment and delivery of the software product. It includes information on the minimum requirements for using the software, the platforms it supports, any special hardware requirements, how reproducible the software is, the products that are produced, how they are distributed, and how users can access the software. It also includes information on user support.</p>
+
+<h3>7.1. Minimum Requirements</h3>
+
+{% if data.smp.deploymentDelivery.minRequirements.uses == True %}
+    <p>We specify the minimum requirements for using the software product. It helps users understand what they need to run the software.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Requirements</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>CPU</td>
+                <td>{% if data.smp.deploymentDelivery.minRequirements.cpu %}{{ data.smp.deploymentDelivery.minRequirements.cpu }}{% else %}<em>(not specified)</em>{% endif %}</td>
+            </tr>
+            <tr>
+                <td>Memory</td>
+                <td>{% if data.smp.deploymentDelivery.minRequirements.memory %}{{ data.smp.deploymentDelivery.minRequirements.memory }}{% else %}<em>(not specified)</em>{% endif %}</td>
+            </tr>
+            <tr>
+                <td>Storage</td>
+                <td>{% if data.smp.deploymentDelivery.minRequirements.storage %}{{ data.smp.deploymentDelivery.minRequirements.storage }}{% else %}<em>(not specified)</em>{% endif %}</td>
+            </tr>
+            <tr>
+                <td>GPU</td>
+                <td>{% if data.smp.deploymentDelivery.minRequirements.gpu %}{{ data.smp.deploymentDelivery.minRequirements.gpu }}{% else %}<em>(not specified)</em>{% endif %}</td>
+            </tr>
+            <tr>
+                <td>Other</td>
+                <td>{% if data.smp.deploymentDelivery.minRequirements.other %}{{ data.smp.deploymentDelivery.minRequirements.other }}{% else %}<em>(not specified)</em>{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+{% elif data.smp.deploymentDelivery.minRequirements.uses == False %}
+    <p>We did not identify any minimum requirements for using the software product.</p>
+{% else %}
+    <p>There is no information available yet on the minimum requirements for using the software product.</p>
+{% endif %}
+
+<h3>7.2. Platforms</h3>
+
+{% if data.smp.deploymentDelivery.platforms and data.smp.deploymentDelivery.platforms|length > 0 %}
+    <p>The software product supports the following platforms:</p>
+
+    <ul>
+        {% for platform in data.smp.deploymentDelivery.platforms %}
+            <li>
+                <strong>{{ platform.name }}</strong>
+                {% if platform.hasSpecificConcerns == True %}
+                    - there are specific concerns identified for this platform
+                    {%- if platform.specificConcerns -%}
+                        : {{ platform.specificConcerns|dot }}
+                    {%- else -%}
+                        .
+                    {%- endif %}
+                {% elif platform.hasSpecificConcerns == False %}
+                    - no specific concerns identified for this platform.
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>There is no information available yet on the platforms supported by the software product.</p>
+{% endif %}
+
+<h3>7.3. Special Hardware</h3>
+
+{% if data.smp.deploymentDelivery.specialHardware.needs == True %}
+    <p>The software product has special hardware requirements.
+    {% if data.smp.deploymentDelivery.specialHardware.hardware and data.smp.deploymentDelivery.specialHardware.hardware|length > 0 %}
+        The following hardware is required:</p>
+        <ul>
+            {% for hardware in data.smp.deploymentDelivery.specialHardware.hardware %}
+                <li>
+                    <strong>{{ hardware.name }}</strong>
+                    {%- if hardware.description -%}: {{ hardware.description|dot }}{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        </p>
+    {% endif %}
+{% elif data.smp.deploymentDelivery.specialHardware.needs == False %}
+    <p>The software product does not have any special hardware requirements.</p>
+{% else %}
+    <p>There is no information available yet on the special hardware requirements of the software product.</p>
+{% endif %}
+
+<h3>7.4. Reproducibility</h3>
+
+{% if data.smp.deploymentDelivery.reproducibility.uses == True %}
+    <p>
+    The software product is reproducible. This means that the results can be reproduced by others using the same data and methods.
+    {% if data.smp.deploymentDelivery.reproducibility.description %}
+        {{ data.smp.deploymentDelivery.reproducibility.description|dot }}
+    {% endif %}
+    </p>
+{% elif data.smp.deploymentDelivery.reproducibility.uses == False %}
+    <p>The software product is not reproducible. This means that the results cannot be reproduced by others using the same data and methods.</p>
+{% else %}
+    <p>There is no information available yet on the reproducibility of the software product.</p>
+{% endif %}
+
+<h3>7.5. Products and Distribution</h3>
+
+{%- if data.smp.deploymentDelivery.products %}
+    <p>For this software project, we will be delivering the following software products:</p>
+    <ul>
+    {%- if "service" in data.smp.deploymentDelivery.products %}
+        <li><strong>Service</strong></li>
+    {%- endif %}
+    {%- if "binary" in data.smp.deploymentDelivery.products %}
+        <li><strong>Binary / Executable</strong></li>
+    {%- endif %}
+    {%- if "library" in data.smp.deploymentDelivery.products %}
+        <li><strong>Library / Package</strong></li>
+    {%- endif %}
+    {%- if "source" in data.smp.deploymentDelivery.products %}
+        <li><strong>Source Code</strong></li>
+    {%- endif %}
+    {%- if "other" in data.smp.deploymentDelivery.products %}
+        <li><strong>Other</strong></li>
+    {%- endif %}
+    </ul>
+{%- endif %}
+
+{%- if data.smp.deploymentDelivery.howDistributed %}
+    <p>We will distribute the software products in the following ways:</p>
+    <ul>
+    {%- if "installer" in data.smp.deploymentDelivery.howDistributed %}
+        <li><strong>Standalone Installer</strong></li>
+    {%- endif %}
+    {%- if "package" in data.smp.deploymentDelivery.howDistributed %}
+        <li><strong>Package Managed / Index</strong></li>
+    {%- endif %}
+    {%- if "container" in data.smp.deploymentDelivery.howDistributed %}
+        <li><strong>Container (e.g. Docker or Singularity)</strong></li>
+    {%- endif %}
+    {%- if "repo" in data.smp.deploymentDelivery.howDistributed %}
+        <li><strong>Software Repository</strong></li>
+    {%- endif %}
+    {%- if "other" in data.smp.deploymentDelivery.howDistributed %}
+        <li><strong>Other</strong></li>
+    {%- endif %}
+    </ul>
+{%- endif %}
+
+{%- if not data.smp.deploymentDelivery.products and not data.smp.deploymentDelivery.howDistributed %}
+    <p>There is no information available yet on the products and distribution of the software product. This will be updated as we progress with the project.</p>
+{%- endif %}
+
+<h3>7.6. Access and Support</h3>
+
+{% if data.smp.deploymentDelivery.access.isFree == True %}
+    <p>The software product is free to access.</p>
+{% elif data.smp.deploymentDelivery.access.isFree == False %}
+    <p>
+    The software product is not free to access.
+
+    {% if data.smp.deploymentDelivery.access.paymentModel %}
+        {% if data.smp.deploymentDelivery.access.paymentModel == "one-time"%}
+            It is available for a one-time payment.
+        {% elif data.smp.deploymentDelivery.access.paymentModel == "subscription"%}
+            It is available through a subscription model.
+        {% elif data.smp.deploymentDelivery.access.paymentModel == "other"%}
+            It is available through a specific payment model.
+            {% if data.smp.deploymentDelivery.access.paymentModelOther %}
+                {{ data.smp.deploymentDelivery.access.paymentModelOther|dot }}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    </p>
+{% else %}
+    <p>There is no information available yet on the access to the software product.</p>
+{% endif %}
+
+{% if data.smp.deploymentDelivery.userSupport.uses == True %}
+    <p>User support is available for the software product.
+    {% if data.smp.deploymentDelivery.userSupport.description %}
+        The support services include: {{ data.smp.deploymentDelivery.userSupport.description|dot }}
+    {% endif %}
+    </p>
+{% elif data.smp.deploymentDelivery.userSupport.uses == False %}
+    <p>User support is not available for the software product as we did not identify any need for support services at this point.</p>
+{% else %}
+    <p>There is no information available yet on user support for the software product.</p>
+{% endif %}
+

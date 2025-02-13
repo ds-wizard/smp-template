@@ -4,7 +4,7 @@ This section highlights the collaborative efforts and licensing arrangements. It
 
 <h3>2.1. Contributors</h3>
 
-{%- if data.smp.collaboration.contributors|length > 0 -%}
+{%- if data.smp.collaboration.contributors and data.smp.collaboration.contributors|length > 0 -%}
 For this software project, we currently list the following {% if data.smp.collaboration.contributors|length == 1 %}contributor{% else %}contributors{% endif %}:
 
 <ul>
@@ -49,7 +49,7 @@ For this software project, we currently list the following {% if data.smp.collab
 
 <h3>2.2. Licenses</h3>
 
-{% if data.smp.collaboration.licenses|length == 1 %}
+{% if data.smp.collaboration.licenses and data.smp.collaboration.licenses|length == 1 %}
     {% set license = data.smp.collaboration.licenses[0] %}
     <p>The license used for this software project is <strong>{{ license.name }}</strong>. {%- if license.url %}It is a standard license listed in the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>: <a href="{{ license.url }}" target="_blank">{{ license.id }}</a>.{% else %}It is not a standard license (not selected from the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>).{% endif %}
 

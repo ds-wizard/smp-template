@@ -1,7 +1,7 @@
 {
     "templateId": "smp",
     "organizationId": "dsw",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "name": "Software Management Plan",
     "description": "Human-readable and machine-actionable SMP",
     "license": "Apache-2.0",
@@ -80,7 +80,7 @@
                 {
                     "name": "jinja",
                     "options": {
-                        "template": "src/template.json.j2",
+                        "template": "src/index.json.j2",
                         "content-type": "application/json",
                         "extension": "json"
                     }

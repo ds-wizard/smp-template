@@ -4,7 +4,7 @@
 
 <h3>4.1. Programming Languages</h3>
 
-{%- if data.smp.implementation.programmingLanguages|length > 0 -%}
+{%- if data.smp.implementation.programmingLanguages and data.smp.implementation.programmingLanguages|length > 0 -%}
 <p>The software project has been developed using the following programming languages:</p>
 <ul>
 {%- for language in data.smp.implementation.programmingLanguages -%}
@@ -35,12 +35,14 @@
         We will be checking the licenses of these dependencies to ensure compliance with the project's licensing requirements. {{ data.smp.implementation.dependencies.licenseChecking|dot }}
     {% endif %}
     </p>
+    {% if data.smp.implementation.dependencies.externalDependencies and data.smp.implementation.dependencies.externalDependencies|length > 0 -%}
     <p>The software project has the following dependencies:</p>
     <ul>
         {%- for dependency in data.smp.implementation.dependencies.externalDependencies -%}
         <li><strong>{{ dependency }}</strong></li>
         {%- endfor -%}
     </ul>
+    {% endif -%}
 {%- elif data.smp.implementation.dependencies.uses == False -%}
     <p>The software project does not use any external dependencies.</p>
 {%- else -%}
@@ -49,7 +51,7 @@
 
 <h3>4.3. Integrated Services</h3>
 
-{%- if data.smp.implementation.integratedServices.uses -%}
+{%- if data.smp.implementation.integratedServices.uses and data.smp.implementation.integratedServices.externalServices -%}
 <p>The software project has integrated the following services:</p>
 <ul>
     {%- for service in data.smp.implementation.integratedServices.externalServices -%}
@@ -62,7 +64,7 @@
 
 <h3>4.4. Files</h3>
 
-{%- if data.smp.implementation.files.uses -%}
+{%- if data.smp.implementation.files.uses and data.smp.implementation.files.fileFormats -%}
 <p>The software project uses the following file formats:</p>
 <ul>
     {%- for fileFormat in data.smp.implementation.files.fileFormats -%}
@@ -75,7 +77,7 @@
 
 <h3>4.5. Protocols</h3>
 
-{%- if data.smp.implementation.protocols.uses -%}
+{%- if data.smp.implementation.protocols.uses and data.smp.implementation.protocols.protocols  -%}
 <p>The software project uses the following protocols:</p>
 <ul>
     {%- for protocol in data.smp.implementation.protocols.protocols -%}

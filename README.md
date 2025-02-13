@@ -4,6 +4,11 @@ Human-readable and machine-actionable SMP
 
 ## Changelog
 
+### 1.0.1
+
+- Fix JSON format (missing template file)
+- Fix handling of unanswered lists
+
 ### 1.0.0
 
 - Initial version of Software Management Plan template created as part of *Milestone 3.2* of [ELIXIR-STEERS project](https://elixir-europe.org/about-us/how-funded/eu-projects/steers)

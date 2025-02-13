@@ -5,12 +5,17 @@
 <h3>5.1. Automated Testing</h3>
 
 {%- if data.smp.testingQa.automated.uses == True -%}
-    <p>The software project uses automated testing to verify its functionality and performance. The following types of automated testing are employed:</p>
+    <p>The software project uses automated testing to verify its functionality and performance.
+    {% if data.smp.testingQa.automated.types -%}
+    The following types of automated testing are employed:</p>
     <ul>
         {% for type in data.smp.testingQa.automated.types -%}
         <li>{{ type }}</li>
         {% endfor -%}
     </ul>
+    {% else -%}
+    </p>
+    {% endif -%}
 
     {%- if data.smp.testingQa.automated.ci == True -%}
         <p>
@@ -36,12 +41,17 @@
 <h3>5.2. Manual Testing</h3>
 
 {%- if data.smp.testingQa.manual.uses == True -%}
-    <p>The software project uses manual testing to verify its functionality and performance. The following types of manual testing are employed:</p>
+    <p>The software project uses manual testing to verify its functionality and performance.
+    {% if data.smp.testingQa.manual.types -%}
+    The following types of manual testing are employed:</p>
     <ul>
         {% for type in data.smp.testingQa.manual.types -%}
         <li>{{ type }}</li>
         {% endfor -%}
     </ul>
+    {% else -%}
+    </p>
+    {% endif -%}
 
     {%- if data.smp.testingQa.manual.docs == True -%}
         <p>
@@ -59,12 +69,17 @@
 <h3>5.3. Static and Dynamic Analysis</h3>
 
 {%- if data.smp.testingQa.staticAnalysis.uses == True -%}
-    <p>The software project uses static analysis to identify potential issues in the codebase. The following types of static analysis are employed:</p>
+    <p>The software project uses static analysis to identify potential issues in the codebase.
+    {% if data.smp.testingQa.staticAnalysis.types -%}
+    The following types of static analysis are employed:</p>
     <ul>
         {% for type in data.smp.testingQa.staticAnalysis.types -%}
         <li>{{ type }}</li>
         {% endfor -%}
     </ul>
+    {% else -%}
+    </p>
+    {% endif -%}
 
     {%- if data.smp.testingQa.staticAnalysis.ci == True -%}
         <p>
@@ -98,12 +113,16 @@
     {%- if data.smp.testingQa.dynamicAnalysis.description %}
         {{ data.smp.testingQa.dynamicAnalysis.description|dot }}
     {%- endif -%}
+    {%- if data.smp.testingQa.dynamicAnalysis.types %}
     The following types of dynamic analysis are employed:</p>
     <ul>
         {% for type in data.smp.testingQa.dynamicAnalysis.types -%}
         <li>{{ type }}</li>
         {% endfor -%}
     </ul>
+    {% else -%}
+    </p>
+    {% endif -%}
 {%- elif data.smp.testingQa.dynamicAnalysis.uses == False -%}
     <p>
     The software project does not use dynamic analysis to identify potential issues in the codebase.
@@ -123,13 +142,14 @@
     {% if data.smp.testingQa.security.description %}
     {{ data.smp.testingQa.security.description }}
     {% endif %}
-    
+    {% if data.smp.testingQa.security.types %}
     The following types of security testing are employed:</p>
     <ul>
         {% for type in data.smp.testingQa.security.types -%}
         <li>{{ type }}</li>
         {% endfor -%}
     </ul>
+    {% endif %}
 {%- elif data.smp.testingQa.security.uses == False -%}
     <p>
     The software project does not use security testing to identify potential vulnerabilities and security issues.
@@ -143,12 +163,17 @@
 {%- endif -%}
 
 {%- if data.smp.testingQa.vulnerability.uses == True -%}
-    <p>The software project uses vulnerability testing to identify potential vulnerabilities and security issues. The following types of vulnerability testing are employed:</p>
+    <p>The software project uses vulnerability testing to identify potential vulnerabilities and security issues.
+    {% if data.smp.testingQa.vulnerability.types -%}
+    The following types of vulnerability testing are employed:</p>
     <ul>
         {% for type in data.smp.testingQa.vulnerability.types -%}
         <li>{{ type }}</li>
         {% endfor -%}
     </ul>
+    {% else -%}
+    </p>
+    {% endif -%}
 
     {%- if data.smp.testingQa.vulnerability.description %}
     <p>{{ data.smp.testingQa.vulnerability.description }}</p>
@@ -168,12 +193,17 @@
 <h3>5.5. Code Review</h3>
 
 {%- if data.smp.testingQa.codeReview.uses == True -%}
-    <p>The software project uses code review to ensure code quality and maintainability. The following aspects of code review are employed:</p>
+    <p>The software project uses code review to ensure code quality and maintainability.
+    {% if data.smp.testingQa.codeReview.aspects -%}
+    The following aspects of code review are employed:</p>
     <ul>
         {% for aspect in data.smp.testingQa.codeReview.aspects -%}
         <li>{{ aspect }}</li>
         {% endfor -%}
     </ul>
+    {% else -%}
+    </p>
+    {% endif -%}
 
     {%- if data.smp.testingQa.codeReview.mandatory == True -%}
     <p>Code review is mandatory for all code changes to ensure that code quality and maintainability are maintained throughout the development lifecycle.</p>

@@ -135,61 +135,6 @@
     <p>Dynamic analysis has not yet been considered for this software project. However, this may changed as the project progresses.</p>
 {%- endif -%}
 
-<h3>5.4. Security and Vulnerability Testing</h3>
-
-{%- if data.smp.testingQa.security.uses == True -%}
-    <p>The software project uses security testing to identify potential vulnerabilities and security issues. 
-    {% if data.smp.testingQa.security.description %}
-    {{ data.smp.testingQa.security.description }}
-    {% endif %}
-    {% if data.smp.testingQa.security.types %}
-    The following types of security testing are employed:</p>
-    <ul>
-        {% for type in data.smp.testingQa.security.types -%}
-        <li>{{ type }}</li>
-        {% endfor -%}
-    </ul>
-    {% endif %}
-{%- elif data.smp.testingQa.security.uses == False -%}
-    <p>
-    The software project does not use security testing to identify potential vulnerabilities and security issues.
-
-    {%- if data.smp.testingQa.security.reason %}
-    There is a specific reason for not using security testing: {{ data.smp.testingQa.security.reason }}.
-    {%- endif -%}
-    </p>
-{%- else -%}
-    <p>Security testing has not yet been considered for this software project. However, this may changed as the project progresses.</p>
-{%- endif -%}
-
-{%- if data.smp.testingQa.vulnerability.uses == True -%}
-    <p>The software project uses vulnerability testing to identify potential vulnerabilities and security issues.
-    {% if data.smp.testingQa.vulnerability.types -%}
-    The following types of vulnerability testing are employed:</p>
-    <ul>
-        {% for type in data.smp.testingQa.vulnerability.types -%}
-        <li>{{ type }}</li>
-        {% endfor -%}
-    </ul>
-    {% else -%}
-    </p>
-    {% endif -%}
-
-    {%- if data.smp.testingQa.vulnerability.description %}
-    <p>{{ data.smp.testingQa.vulnerability.description }}</p>
-    {%- endif -%}
-{%- elif data.smp.testingQa.vulnerability.uses == False -%}
-    <p>
-    The software project does not use vulnerability testing to identify potential vulnerabilities and security issues.
-
-    {%- if data.smp.testingQa.vulnerability.reason %}
-    There is a specific reason for not using vulnerability testing: {{ data.smp.testingQa.vulnerability.reason }}.
-    {%- endif -%}
-    </p>
-{%- else -%}
-    <p>Vulnerability testing has not yet been considered for this software project. However this may changed as the project progresses.</p>
-{%- endif -%}
-
 <h3>5.5. Code Review</h3>
 
 {%- if data.smp.testingQa.codeReview.uses == True -%}
@@ -205,6 +150,10 @@
     </p>
     {% endif -%}
 
+    {%- if data.smp.testingQa.codeReview.howAssigned %}
+    <p>Code review is assigned in the following manner: {{ data.smp.testingQa.codeReview.howAssigned }}.</p>
+    {%- endif -%}
+
     {%- if data.smp.testingQa.codeReview.mandatory == True -%}
     <p>Code review is mandatory for all code changes to ensure that code quality and maintainability are maintained throughout the development lifecycle.</p>
     {%- elif data.smp.testingQa.codeReview.mandatory == False -%}
@@ -212,13 +161,13 @@
     {%- endif -%}
 
     {%- if data.smp.testingQa.codeReview.hasChecklist == True -%}
-    <p>A code review checklist is used to ensure that all aspects of code quality and maintainability are considered during the review process.</p>
+    <p>A code review checklist is used to ensure that all aspects of code quality and maintainability are considered during the review process. {% if data.smp.testingQa.codeReview.checklist %}The following checklist is used: {{ data.smp.testingQa.codeReview.checklist }}.{% endif %}</p>
     {%- elif data.smp.testingQa.codeReview.hasChecklist == False -%}
     <p>A code review checklist is not used to ensure that all aspects of code quality and maintainability are considered during the review process.</p>
     {%- endif -%}
 
     {%- if data.smp.testingQa.codeReview.hasAutomation == True -%}
-    <p>Automation is used to assist with the code review process and ensure that code quality and maintainability are maintained throughout the development lifecycle.</p>
+    <p>Automation is used to assist with the code review process and ensure that code quality and maintainability are maintained throughout the development lifecycle. {% if data.smp.testingQa.codeReview.automation %}The following tools are used for automation: {{ data.smp.testingQa.codeReview.automation }}.{% endif %}</p>
     {%- elif data.smp.testingQa.codeReview.hasAutomation == False -%}
     <p>Automation is not used to assist with the code review process, but is encouraged to ensure that code quality and maintainability are maintained throughout the development lifecycle.</p>
     {%- endif -%}
@@ -232,7 +181,7 @@
     {%- endif -%}
 {%- elif data.smp.testingQa.codeReview.uses == False -%}
     <p>
-    The software project does not use code review to ensure code quality and maintainability.
+    The software project does not use code review to ensure code quality and maintainability. {% if data.smp.testingQa.codeReview.reason %}There is a specific reason for not using code review: {{ data.smp.testingQa.codeReview.reason }}.{% endif %}
     </p>
 {%- else -%}
     <p>Code review has not yet been considered for this software project. However, this may changed as the project progresses.</p>
@@ -240,16 +189,20 @@
 
 <h3>5.6. Sample Data</h3>
 
-{%- if data.smp.testingQa.sampleData.hasSampleData == True -%}
+{%- if data.smp.testingQa.sampleData.uses == True -%}
     <p>
     The software project includes sample data to assist with testing and development.
     {% if data.smp.testingQa.sampleData.description %}
-    The following description of sample data is provided: {{ data.smp.testingQa.sampleData.description }}
+    The following description of sample data is provided: {{ data.smp.testingQa.sampleData.description }}.
     {% endif %}
     </p>
-{%- elif data.smp.testingQa.sampleData.hasSampleData == False -%}
+{%- elif data.smp.testingQa.sampleData.uses == False -%}
     <p>
-    The software project does not include sample data to assist with testing and development.
+    The software project does not include sample data to assist with testing and development. {% if data.smp.testingQa.sampleData.reason %}There is a specific reason for not including sample data: {{ data.smp.testingQa.sampleData.reason }}.{% endif %}
+    </p>
+{%- elif data.smp.testingQa.sampleData.uses == "not-applicable" -%}
+    <p>
+    Sample data is not applicable to this software project.
     </p>
 {%- else -%}
     <p>Sample data has not yet been considered for this software project. However, this may changed as the project progresses.</p>

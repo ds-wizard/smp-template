@@ -2,6 +2,9 @@
 
 <p>This introductory section provides an overview of the software {% if data.smp.general.name %}<strong>{{ data.smp.general.name }}</strong>{% else %}<em>(yet to be named)</em>{% endif %}, including its name and other basic attributes. By understanding these foundational details, stakeholders can gain a clear perspective on the software's role and value in its intended context.</p>
 
+
+<h3>1.1. General Information</h3>
+
 <table class="table-general">
     <thead></thead>
     <tbody>
@@ -11,7 +14,7 @@
         </tr>
         <tr>
             <th>Shortname</th>
-            <td>{%- if data.smp.general.hasShortName and data.smp.general.shortname -%}{{ data.smp.general.shortname }}{%- else -%}<em>(shortname not specified)</em>{%- endif -%}</td>
+            <td>{%- if data.smp.general.hasShortName == "yes" and data.smp.general.shortname -%}{{ data.smp.general.shortname }}{%- elif data.smp.general.hasShortName == "notNeeded" -%}<em>(not needed)</em>{%- else -%}<em>(shortname not specified)</em>{%- endif -%}</td>
         </tr>
         <tr>
             <th>Tagline</th>
@@ -38,16 +41,90 @@
             </td>
         </tr>
         <tr>
-            <th>Categories</th>
-            <td>
-            {% if data.smp.general.categories %}
-                {% for category in data.smp.general.categories %}
-                    <span class="category">{% if category.url %}<a href="{{ category.url }}" target="_blank">{{ category.name }}</a>{% else %}{{ category.name }}{% endif %}</span>{% if not loop.last %}, {% endif %}
-                {% endfor %}
-            {% else %}
-                <em>(no categories specified)</em>
-            {% endif %}
-            </td>
+            <th>Point of Contact</th>
+            <td>{%- if data.smp.general.pointOfContact -%}{{ data.smp.general.pointOfContact }}{%- endif -%}</td>
         </tr>
     </tbody>
 </table>
+
+<h3>1.2. Projects</h3>
+
+{%- set nProjects = data.smp.general.projects|length -%}
+
+{%- if nProjects == 0 -%}
+<p>For this software, no projects are currently specified as associated with it.</p>
+{%- elif nProjects == 1 -%}
+<p>This software is associated with the following project:</p>
+{%- else -%}
+<p>This software is associated with the following {{ nProjects }} projects:</p>
+{%- endif -%}
+
+<ul>
+{%- for project in data.smp.general.projects -%}
+    <li class="project">
+        <span class="project-name"><strong>{{ project.name }}</strong> {% if project.acronym %}({{ project.acronym }}){% endif %}</span><br>
+        <span class="project-start">Start: {% if project.start %}{{ project.start }}{% else %}<em>(start date not specified)</em>{% endif %}</span><br>
+        <span class="project-end">End: {% if project.end %}{{ project.end }}{% else %}<em>(end date not specified)</em>{% endif %}</span><br>
+        <span class="project-website">Website: {% if project.website %}<a href="{{ project.website }}" target="_blank">{{ project.website }}</a>{% else %}<em>(website not specified)</em>{% endif %}</span><br>
+        {% if project.fundings|length > 0 %}
+            <span class="project-fundings">Fundings: </span>
+            <ul>
+            {% for funding in project.fundings %}
+                <li>{{ funding.funder }}: {%- if funding.grantNumber %}{{ funding.grantNumber }}{% else %}<em>(grant number not yet specified)</em>{% endif %} ({% if funding.status %}{{ funding.status }}{% else %}<em>(status not specified)</em>{% endif %})</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+{%- endfor -%}
+</ul>
+
+<h3>1.3. Documentation</h3>
+
+{%- set nDocumentation = data.smp.general.documentation|length -%}
+
+{%- if nDocumentation == 0 -%}
+<p>For this software, no documentation is currently specified.</p>
+{%- elif nDocumentation == 1 -%}
+<p>This software has the following documentation:</p>
+{%- else -%}
+<p>This software has the following {{ nDocumentation }} documentation resources:</p>
+{%- endif -%}
+
+<ul>
+{%- for doc in data.smp.general.documentation -%}
+    <li>
+        <a href="{{ doc.url }}" target="_blank">{{ doc.url }}</a>
+        {%- if doc.types and doc.types|length > 0 -%}
+            <br>
+            <ul class="doc-types">
+                {%- for type in doc.types -%}
+                    <li class="doc-type">{{ type }}</li>
+                {%- endfor -%}
+            </ul>
+        {%- endif -%}
+    </li>
+{%- endfor -%}
+</ul>
+
+<h3>1.4. Related Resources</h3>
+
+{%- set nRelatedResources = data.smp.general.relatedResources|length -%}
+
+{%- if nRelatedResources == 0 -%}
+<p>For this software, no related resources are currently specified.</p>
+{%- elif nRelatedResources == 1 -%}
+<p>This software is related to the following resource:</p>
+{%- else -%}
+<p>This software is related to the following {{ nRelatedResources }} resources:</p>
+{%- endif -%}
+
+<ul>
+{%- for resource in data.smp.general.relatedResources -%}
+    <li>
+        <a href="{{ resource.url }}" target="_blank">{{ resource.name }}</a>
+        {%- if resource.relation -%}
+            <br><em>Relation</em>: {{ resource.relation }}
+        {%- endif -%}
+    </li>
+{%- endfor -%}
+</ul>

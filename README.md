@@ -4,6 +4,11 @@ Human-readable and machine-actionable SMP
 
 ## Changelog
 
+### 1.2.0
+
+- Updated to document template metamodel 18.0 (v4.29.0)
+- Updated to KM version 1.2.4
+
 ### 1.0.1
 
 - Fix JSON format (missing template file)

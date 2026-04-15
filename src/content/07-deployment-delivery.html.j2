@@ -43,30 +43,39 @@
     <p>There is no information available yet on the minimum requirements for using the software product.</p>
 {% endif %}
 
-<h3>7.2. Platforms</h3>
+<h3>7.2. Operating Systems and Runtime Platforms</h3>
 
-{% if data.smp.deploymentDelivery.platforms and data.smp.deploymentDelivery.platforms|length > 0 %}
-    <p>The software product supports the following platforms:</p>
+{% if data.smp.deploymentDelivery.operatingSystems and data.smp.deploymentDelivery.operatingSystems|length > 0 %}
+    <p>The software product supports the following operating systems:</p>
 
     <ul>
-        {% for platform in data.smp.deploymentDelivery.platforms %}
+        {% for os in data.smp.deploymentDelivery.operatingSystems %}
             <li>
-                <strong>{{ platform.name }}</strong>
-                {% if platform.hasSpecificConcerns == True %}
-                    - there are specific concerns identified for this platform
-                    {%- if platform.specificConcerns -%}
-                        : {{ platform.specificConcerns|dot }}
-                    {%- else -%}
-                        .
-                    {%- endif %}
-                {% elif platform.hasSpecificConcerns == False %}
-                    - no specific concerns identified for this platform.
+                <strong>{{ os.name }}</strong>
+                {% if os.concerns %}
+                    - there are specific concerns identified for this operating system: {{ os.concerns|dot }}
                 {% endif %}
             </li>
         {% endfor %}
     </ul>
 {% else %}
-    <p>There is no information available yet on the platforms supported by the software product.</p>
+    <p>There is no information available yet on the operating systems supported by the software product.</p>
+{% endif %}
+
+{% if data.smp.deploymentDelivery.runtimePlatforms and data.smp.deploymentDelivery.runtimePlatforms|length > 0 %}
+    <p>The software product supports the following runtime platforms:</p>
+    <ul>
+        {% for platform in data.smp.deploymentDelivery.runtimePlatforms %}
+            <li>
+                <strong>{{ platform.name }}</strong>
+                {% if platform.concerns %}
+                    - there are specific concerns identified for this runtime platform: {{ platform.concerns|dot }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>There is no information available yet on the runtime platforms supported by the software product.</p>
 {% endif %}
 
 <h3>7.3. Special Hardware</h3>
@@ -107,28 +116,7 @@
     <p>There is no information available yet on the reproducibility of the software product.</p>
 {% endif %}
 
-<h3>7.5. Products and Distribution</h3>
-
-{%- if data.smp.deploymentDelivery.products %}
-    <p>For this software project, we will be delivering the following software products:</p>
-    <ul>
-    {%- if "service" in data.smp.deploymentDelivery.products %}
-        <li><strong>Service</strong></li>
-    {%- endif %}
-    {%- if "binary" in data.smp.deploymentDelivery.products %}
-        <li><strong>Binary / Executable</strong></li>
-    {%- endif %}
-    {%- if "library" in data.smp.deploymentDelivery.products %}
-        <li><strong>Library / Package</strong></li>
-    {%- endif %}
-    {%- if "source" in data.smp.deploymentDelivery.products %}
-        <li><strong>Source Code</strong></li>
-    {%- endif %}
-    {%- if "other" in data.smp.deploymentDelivery.products %}
-        <li><strong>Other</strong></li>
-    {%- endif %}
-    </ul>
-{%- endif %}
+<h3>7.5. Distribution</h3>
 
 {%- if data.smp.deploymentDelivery.howDistributed %}
     <p>We will distribute the software products in the following ways:</p>
@@ -149,31 +137,21 @@
         <li><strong>Other</strong></li>
     {%- endif %}
     </ul>
-{%- endif %}
-
-{%- if not data.smp.deploymentDelivery.products and not data.smp.deploymentDelivery.howDistributed %}
+{%- else %}
     <p>There is no information available yet on the products and distribution of the software product. This will be updated as we progress with the project.</p>
 {%- endif %}
 
 <h3>7.6. Access and Support</h3>
 
-{% if data.smp.deploymentDelivery.access.isFree == True %}
+{% if data.smp.deploymentDelivery.access.isFree == "yes" %}
     <p>The software product is free to access.</p>
-{% elif data.smp.deploymentDelivery.access.isFree == False %}
+{% elif data.smp.deploymentDelivery.access.isFree == "only-internal" %}
+    <p>The software product is only free to access for internal users. External users may need to pay or meet certain conditions to access the software.</p>
+{% elif data.smp.deploymentDelivery.access.isFree == "no" %}
     <p>
-    The software product is not free to access.
-
+    The software product is not free to access. Users may need to pay or meet certain conditions to access the software. 
     {% if data.smp.deploymentDelivery.access.paymentModel %}
-        {% if data.smp.deploymentDelivery.access.paymentModel == "one-time"%}
-            It is available for a one-time payment.
-        {% elif data.smp.deploymentDelivery.access.paymentModel == "subscription"%}
-            It is available through a subscription model.
-        {% elif data.smp.deploymentDelivery.access.paymentModel == "other"%}
-            It is available through a specific payment model.
-            {% if data.smp.deploymentDelivery.access.paymentModelOther %}
-                {{ data.smp.deploymentDelivery.access.paymentModelOther|dot }}
-            {% endif %}
-        {% endif %}
+        The access conditions include: {{ data.smp.deploymentDelivery.access.paymentModel|dot }}
     {% endif %}
     </p>
 {% else %}
@@ -185,7 +163,18 @@
     {% if data.smp.deploymentDelivery.userSupport.description %}
         The support services include: {{ data.smp.deploymentDelivery.userSupport.description|dot }}
     {% endif %}
+    {% if data.smp.deploymentDelivery.userSupport.level %}
+        The level of support provided is: {{ data.smp.deploymentDelivery.userSupport.level|dot }}
+    {% endif %}
     </p>
+    {% if data.smp.deploymentDelivery.userSupport.issueTrackers %}
+        <p>Issue tracker(s) are available for the software product:</p>
+        {% for tracker in data.smp.deploymentDelivery.userSupport.issueTrackers %}
+            <ul>
+                <li><a href="{{ tracker.url }}">{{ tracker.name }} ({{ tracker.url }})</a></li>
+            </ul>
+        {% endfor %}
+    {% endif %}
 {% elif data.smp.deploymentDelivery.userSupport.uses == False %}
     <p>User support is not available for the software product as we did not identify any need for support services at this point.</p>
 {% else %}

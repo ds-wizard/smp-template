@@ -24,7 +24,11 @@ For this software project, we currently list the following {% if data.smp.collab
             {% if contributor.affiliations|length > 0 %}
                 <br><em>Affiliations</em>: 
                 {% for affiliation in contributor.affiliations %}
-                <span class="contributor-affiliation">{{ affiliation.name }}</span>{% if not loop.last%}, {% endif %}
+                    {% if affiliation.ror %}
+                        <span class="contributor-affiliation"><a href="{{ affiliation.ror }}" target="_blank">{{ affiliation.name }}</a></span>{% if not loop.last%}, {% endif %}
+                    {% else %}
+                        <span class="contributor-affiliation">{{ affiliation.name }}</span>{% if not loop.last%}, {% endif %}
+                    {% endif %}
                 {% endfor %}
             {% endif %}
         {% elif contributor.type == "organization" %}
@@ -32,10 +36,10 @@ For this software project, we currently list the following {% if data.smp.collab
                 (<span class="contributor-website"><a href="{{ contributor.website }}" target=""_blank>{{ contributor.website }}</a></span>)
             {% endif %}
             {% if contributor.identifier %}
-                {% if contributor.identifier.url %}
-                    <br><em>ROR</em>: <a href="{{ contributor.identifier.url }}" target="_blank">{{ contributor.identifier.url }}</a>
+                {% if contributor.identifier.startswith("http") %}
+                    <br><em>Identifier</em>: <a href="{{ contributor.identifier }}" target="_blank">{{ contributor.identifier }}</a>
                 {% else %}
-                    <br><em>Identifier</em>: {{ contributor.identifier.name }}
+                    <br><em>Identifier</em>: {{ contributor.identifier }}
                 {% endif %}
             {% endif %}
         {% endif %}
@@ -51,15 +55,15 @@ For this software project, we currently list the following {% if data.smp.collab
 
 {% if data.smp.collaboration.licenses and data.smp.collaboration.licenses|length == 1 %}
     {% set license = data.smp.collaboration.licenses[0] %}
-    <p>The license used for this software project is <strong>{{ license.name }}</strong>. {%- if license.url %}It is a standard license listed in the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>: <a href="{{ license.url }}" target="_blank">{{ license.id }}</a>.{% else %}It is not a standard license (not selected from the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>).{% endif %}
+    <p>The license used for this software project is <strong>{{ license.license }}</strong>.
 
     {% if license.holders|length == 1 %}
-    The license holder is <strong>{{ license.holders[0].name }}</strong></p>
+    The license holder is <strong>{{ license.holders[0] }}</strong>.</p>
     {% elif license.holders|length > 1 %}
     There are several license holders listed below:</p>
     <ul>
         {%- for holder in license.holders %}
-        <li>{{ holder.name }}</li>
+        <li>{{ holder }}</li>
         {%- endfor %}
     </ul>
     {% else %}
@@ -71,15 +75,14 @@ For this software project, we currently list the following {% if data.smp.collab
     <ul>
         {%- for license in licenses -%}
         <li>
-            <strong>{{ license.name }}</strong>
+            <strong>{{ license.license }}</strong>
             <br>
-            {%- if license.url %}It is a standard license listed in the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>: <a href="{{ license.url }}" target="_blank">{{ license.id }}</a>.{% else %}It is not a standard license (not selected from the <a href="https://spdx.org/licenses/" target="_blank">SPDX License List</a>).{% endif %}
             {% if license.holders|length == 1 %}
-                The holder for this license is <strong>{{ license.holders[0].name }}</strong>.</li>
+                The holder for this license is <strong>{{ license.holders[0] }}</strong>.</li>
             {% elif license.holders|length > 1 %}
                 There are several license holders:
                 {%- for holder in license.holders -%}
-                <strong>{{ holder.name }}</strong>{% if not loop.last %}, {% endif %}
+                <strong>{{ holder }}</strong>{% if not loop.last %}, {% endif %}
                 {%- endfor -%}
             {% else %}
             The license holders are not yet specified.
@@ -91,3 +94,15 @@ For this software project, we currently list the following {% if data.smp.collab
 <p>No license has been yet selected for this software project.</p>
 {% endif %}
 
+
+<h3>2.3. Contribution Guidelines</h3>
+
+{%- if data.smp.collaboration.hasContributionGuidelines -%}
+    {% if data.smp.collaboration.contributionGuidelines %}
+        <p>Contribution guidelines for this software project can be found at <a href="{{ data.smp.collaboration.contributionGuidelines }}" target="_blank">{{ data.smp.collaboration.contributionGuidelines }}</a>.</p>
+    {% else %}
+        <p>Contribution guidelines for this software project have been indicated as available, but a URL to access them has not yet been provided.</p>
+    {% endif %}
+{%- else -%}
+    <p>There are currently no contribution guidelines specified for this software project.</p>
+{%- endif -%}

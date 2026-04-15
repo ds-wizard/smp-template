@@ -1,16 +1,16 @@
 {
     "templateId": "smp",
     "organizationId": "dsw",
-    "version": "1.0.1",
+    "version": "1.2.0",
     "name": "Software Management Plan",
     "description": "Human-readable and machine-actionable SMP",
     "license": "Apache-2.0",
-    "metamodelVersion": 16,
+    "metamodelVersion": "18.0",
     "allowedPackages": [
         {
             "orgId": "dsw",
             "kmId": "smp",
-            "minVersion": "1.0.0",
+            "minVersion": "1.2.4",
             "maxVersion": null
         }
     ],

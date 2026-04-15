@@ -23,23 +23,10 @@
 <p>No specific software types have been identified (yet) for this software project.</p>
 {%- endif -%}
 
-<h3>3.3. Features</h3>
+<h3>3.3. Key Features</h3>
 
-{%- if data.smp.analysisDesign.features and data.smp.analysisDesign.features|length > 0 -%}
-<p>The software project includes the following features:</p>
-<ul>
-{%- for feature in data.smp.analysisDesign.features -%}
-    <li>{{ feature }}</li>
-{%- endfor -%}
-</ul>
+{%- if data.smp.analysisDesign.keyFeatures -%}
+<p>{{ data.smp.analysisDesign.keyFeatures }}</p>
 {%- else -%}
-<p>No specific features have been identified (yet) for this software project.</p>
-{%- endif -%}
-
-<h3>3.4. Interfaces</h3>
-
-{%- if data.smp.analysisDesign.interfaces -%}
-<p>{{ data.smp.analysisDesign.interfaces }}</p>
-{%- else -%}
-<p>No specific interfaces have been identified (yet) for this software project.</p>
+<p>No specific key features have been identified (yet) for this software project.</p>
 {%- endif -%}

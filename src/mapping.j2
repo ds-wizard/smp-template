@@ -1,0 +1,827 @@
+{%- set object = dc|extract_replies -%}
+{#- default object -#}
+{%- set result = {
+    "smp": {
+        "general": {
+            "name": None,
+            "hasShortName": None,
+            "shortName": None,
+            "tagline": None,
+            "description": None,
+            "keywords": [],
+            "hasHomepage": None,
+            "homepage": None,
+            "projects": [],
+            "documentation": [],
+            "hasPointOfContact": None,
+            "pointOfContact": None,
+            "relatedResources": [],
+        },
+        "collaboration": {
+            "contributors": [],
+            "licenses": [],
+            "hasContributionGuidelines": None,
+            "contributionGuidelines": None,
+        },
+        "analysisDesign": {
+            "targetAudience": None,
+            "softwareTypes": [],
+            "keyFeatures": None,
+        },
+        "implementation": {
+            "programmingLanguages": [],
+            "dependencies": {
+                "uses": None,
+                "licenseChecking": None,
+            },
+            "integratedServices": {
+                "uses": None,
+                "externalServices": [],
+            },
+            "files": {
+                "uses": None,
+                "anyNonOpenStandard": None,
+                "reason": None,
+            },
+            "protocols": {
+                "uses": None,
+                "anyNonOpenStandard": None,
+                "reason": None,
+            },
+            "vcs": {
+                "uses": None,
+                "vcs": [],
+            }
+        },
+        "testingQa": {
+            "automated": {
+                "uses": None,
+                "types": [],
+                "ci": None,
+                "passBeforeMerge": None,
+                "reason": None,
+            },
+            "manual": {
+                "uses": None,
+                "types": [],
+                "docs": None,
+            },
+            "staticAnalysis": {
+                "uses": None,
+                "types": None,
+                "description": None,
+                "ci": None,
+                "passBeforeMerge": None,
+                "reason": None,
+            },
+            "dynamicAnalysis": {
+                "uses": None,
+                "types": None,
+                "description": None,
+                "reason": None,
+            },
+            "codeReview": {
+                "uses": None,
+                "description": None,
+                "mandatory": None,
+                "howAssigned": None,
+                "aspects": [],
+                "hasChecklist": None,
+                "checklist": None,
+                "hasAutomation": None,
+                "automation": None,
+                "howConstructive": None,
+                "reason": None,
+            },
+            "sampleData": {
+                "uses": None,
+                "description": None,
+                "reason": None,
+            },
+        },
+        "versioningReleases": {
+            "releases": {
+                "uses": None,
+                "schema": None,
+                "schemaOther": None,
+                "when": None,
+                "whenOther": None,
+                "hasChangelog": None,
+                "changelog": [],
+            },
+            "registries": {
+                "uses": None,
+                "registries": [],
+            },
+            "pids": {
+                "uses": None,
+                "pids": [],
+            },
+        },
+        "deploymentDelivery": {
+            "minRequirements": {
+                "uses": None,
+                "cpu": None,
+                "memory": None,
+                "storage": None,
+                "gpu": None,
+                "other": None,
+            },
+            "operatingSystems": [],
+            "runtimePlatforms": [],
+            "specialHardware": {
+                "needs": None,
+                "hardware": [],
+            },
+            "reproducibility": {
+                "uses": None,
+                "description": None,
+            },
+            "howDistributed": [],
+            "access": {
+                "isFree": None,
+                "paymentModel": None,
+            },
+            "userSupport": {
+                "uses": None,
+                "description": None,
+                "level": None,
+                "issueTrackers": [],
+            },
+        },
+    },
+    "meta": {
+        "document": {
+            "uuid": dc.document.uuid,
+            "name": dc.document.name,
+            "createdAt": dc.document.created_at|datetime_format("%Y-%m-%dT%H:%M:%SZ"),
+        },
+        "project": {
+            "uuid": dc.project.uuid,
+            "name": dc.project.name,
+            "description": dc.project.description,
+            "tags": dc.project.project_tags,
+            "url": dc.config.client_url ~ "/projects/" ~ dc.project.uuid,
+        },
+    },
+} -%}
+{#- Mapping -#}
+
+{#- Mapping [General Information] -#}
+{%- do result.smp.general.update({
+    "name": object.generalInformation.name._value|default(None),
+    "description": object.generalInformation.description._value|default(None),
+    "tagline": object.generalInformation.tagline._value|default(None),
+    "keywords": object.generalInformation.keywords|map(attribute="keyword")|map(attribute="_value")|list,
+}) -%}
+{%- if object.generalInformation.hasShortName -%}
+    {%- if object.generalInformation.hasShortName._value -%}
+        {%- do result.smp.general.update({
+            "hasShortName": True,
+            "shortName": object.generalInformation.hasShortName.shortName._value|default(None),
+        }) -%}
+    {%- else -%}
+        {%- do result.smp.general.update({
+            "hasShortName": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if object.generalInformation.hasHomepage -%}
+    {%- if object.generalInformation.hasHomepage._value -%}
+        {%- do result.smp.general.update({
+            "hasHomepage": True,
+            "homepage": object.generalInformation.hasHomepage.homepage._value|default(None),
+        }) -%}
+    {%- else -%}
+        {%- do result.smp.general.update({
+            "hasHomepage": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if object.generalInformation.hasContact -%}
+    {%- if object.generalInformation.hasContact._value -%}
+        {%- do result.smp.general.update({
+            "hasPointOfContact": True,
+            "pointOfContact": object.generalInformation.hasContact.contact._value|default(None),
+        }) -%}
+    {%- else -%}
+        {%- do result.smp.general.update({
+            "hasPointOfContact": False,
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- for documentation in object.generalInformation.documentation|default([]) -%}
+    {%- set types = documentation.types|default([])|map(attribute="_label")|list -%}
+    {%- set url = documentation.url._value|default(None) -%}
+    {%- if url -%}
+        {%- do result.smp.general.documentation.append({
+            "types": types,
+            "url": url,
+        }) -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- for resource in object.generalInformation.relatedResources|default([]) -%}
+    {%- set name = resource.name._value|default(None) -%}
+    {%- set url = resource.url._value|default(None) -%}
+    {%- set relation = resource.relation._value|default(None) -%}
+    {%- if name or url -%}
+        {%- do result.smp.general.relatedResources.append({
+            "name": name,
+            "url": url,
+            "relation": relation,
+        }) -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- for project in object.generalInformation.projects|default([]) -%}
+    {%- set acronym = project.acronym._value|default(None) -%}
+    {%- set name = project.name._value|default(None) -%}
+    {%- set website = project.website._value|default(None) -%}
+    {%- set start = project.start._value|default(None) -%}
+    {%- set end = project.end._value|default(None) -%}
+    {%- set fundings = [] -%}
+    {%- for funding in project.fundings|default([]) -%}
+        {%- set funderRaw = funding.funder._raw|default(None) -%}
+        {%- set funder = None -%}
+        {%- if funderRaw.names -%}
+            {%- for name in funderRaw.names -%}
+                {%- if not funder and name.lang == "en" -%}
+                    {%- set funder = name -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endif -%}
+        {%- set grantNumber = funding.grantNumber._value|default(None) -%}
+        {%- set status = funding.status._value|default(None) -%}
+        {%- if funder -%}
+            {%- do fundings.append({
+                "funder": funder,
+                "grantNumber": grantNumber,
+                "status": status,
+            }) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- if acronym or name or description or url -%}
+        {%- do result.smp.general.projects.append({
+            "acronym": acronym,
+            "name": name,
+            "website": website,
+            "start": start,
+            "end": end,
+            "fundings": fundings,
+        }) -%}
+    {%- endif -%}
+{%- endfor -%}
+
+{#- Mapping [Collaboration and License] -#}
+{%- for contributor in object.collaboration.contributors -%}
+    {%- set name = contributor.name._value|default(None) -%}
+    {%- set isAuthor = contributor.isAuthor._value|default(None) -%}
+    {%- set description = None -%}
+    {%- if contributor.hasDescription and contributor.hasDescription._value -%}
+        {%- set description = contributor.hasDescription.description._value|default(None) -%}
+    {%- endif -%}
+    {%- set roles = [] -%}
+    {%- for r in contributor.roles|default([]) -%}
+        {%- if r.role._raw -%}
+            {%- do roles.append(r.role._raw['label'][0]) -%}
+        {%- else -%}
+            {%- do roles.append(role._value|default(None)) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- set contributorType = contributor.type._value|default(None) -%}
+    {%- if contributorType == "person" -%}
+        {%- set email = contributor.type.email._value|default(None) -%}
+        {%- set orcid = contributor.type.orcid._value|default(None) -%}
+        {%- if contributor.type.orcid._raw -%}
+            {%- set orcid = contributor.type.orcid._raw['orcid-id'] -%}
+        {%- endif -%}
+        {%- set affiliations = [] -%}
+        {%- for a in contributor.type.affiliations|default([]) -%}
+            {%- if a.affiliation._raw -%}
+                {%- for n in a.affiliation._raw['names'] -%}
+                    {%- if n['lang'] == 'en' -%}
+                        {%- do affiliations.append({
+                            "name": n['value'],
+                            "ror": a.affiliation._raw['id'],
+                        }) -%}
+                        {%- break -%}
+                    {%- endif -%}
+                {%- endfor -%}
+            {%- else -%}
+                {%- do affiliations.append({
+                    "name": a.affiliation._value|default(None),
+                    "ror": None,
+                }) -%}
+            {%- endif -%}
+        {%- endfor -%}
+        {%- do result.smp.collaboration.contributors.append({
+            "type": "person",
+            "name": name,
+            "email": email,
+            "orcid": orcid,
+            "affiliations": affiliations,
+            "isAuthor": isAuthor,
+            "description": description,
+            "roles": roles,
+        }) -%}
+    {%- elif contributorType == "organization" -%}
+        {%- set website = contributor.type.website._value|default(None) -%}
+        {%- set identifier = contributor.type.identifier._value|default(None) -%}
+        {%- if contributor.type.identifier._raw -%}
+            {%- set identifier = contributor.type.identifier._raw['id'] -%}
+        {%- endif -%}
+        {%- do result.smp.collaboration.contributors.append({
+            "type": "organization",
+            "name": name,
+            "website": website,
+            "identifier": identifier,
+            "isAuthor": isAuthor,
+            "description": description,
+            "roles": roles,
+        }) -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- do result.smp.collaboration.update({
+    "hasContributionGuidelines": object.collaboration.hasContributionGuidelines._value|default(None),
+}) -%}
+{%- if object.collaboration.hasContributionGuidelines._value -%}
+    {%- do result.smp.collaboration.update({
+        "contributionGuidelines": object.collaboration.hasContributionGuidelines.url._value|default(None),
+    }) -%}
+{%- endif -%}
+{%- for license in object.collaboration.licenses|default([]) -%}
+    {%- set lic = license.license._value|default(None) -%}
+    {%- if license.license._raw -%}
+        {%- set lic = license.license._raw['licenseId'] -%}
+    {%- endif -%}
+    {%- set reason = license.reason._value|default(None) -%}
+    {%- set holders = [] -%}
+    {%- for holder in license.holders|default([]) -%}
+        {%- if holder.holder._label -%}
+            {%- do holders.append(holder.holder._label) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- if lic -%}
+        {%- do result.smp.collaboration.licenses.append({
+            "license": lic,
+            "holders": holders,
+            "reason": reason,
+        }) -%}
+    {%- endif -%}
+{%- endfor -%}
+
+{#- Mapping [Analysis and Design] -#}
+{%- do result.smp.analysisDesign.update({
+    "targetAudience": object.analysis.targetAudience._value|default(None),
+    "keyFeatures": object.analysis.keyFeatures._value|default(None),
+    "softwareTypes": object.analysis.softwareTypes|map(attribute="_label")|list,
+}) -%}
+
+{#- Mapping [Implementation] -#}
+{%- if object.implementation.hasDependencies._value is true -%}
+    {%- do result.smp.implementation.update({
+        "dependencies": {
+            "uses": True,
+            "licenseChecking": object.implementation.hasDependencies.licenseChecking._value|default(None),
+        },
+    }) -%}
+{%- elif object.implementation.hasDependencies._value is false -%}
+    {%- do result.smp.implementation.update({
+        "dependencies": {
+            "uses": False,
+        },
+    }) -%}
+{%- endif -%}
+{%- if object.implementation.integratesExternalServices._value -%}
+    {%- set services = [] -%}
+    {%- for service in object.implementation.integratesExternalServices.externalServices|default([]) -%}
+        {%- set url = service.url._value|default(None) -%}
+        {%- set description = service.description._value|default(None) -%}
+        {%- set name = service.service._value|default(None) -%}
+        {%- if name or url -%}
+            {%- do services.append({
+                "name": name,
+                "url": url,
+                "description": description,
+            }) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- do result.smp.implementation.update({
+        "integratedServices": {
+            "uses": True,
+            "externalServices": services,
+        },
+    }) -%}
+{%- endif -%}
+{%- if object.implementation.programmingLanguages|default([]) -%}
+    {%- set langs = [] -%}
+    {%- for pl in object.implementation.programmingLanguages|default([]) -%}
+        {%- set howUsed = pl.howUsed._value|default(None) -%}
+        {%- set language = pl.programmingLanguage._value|default(None) -%}
+        {%- if pl.programmingLanguage._raw -%}
+            {%- set language = pl.programmingLanguage._raw['label']['value'] -%}
+        {%- endif -%}
+        {%- set pkgTools = [] -%}
+        {%- if pl.usesPackaging._value -%}
+            {%- for tool in pl.usesPackaging.packagingTools|default([]) -%}
+                {%- set toolName = tool.packagingTool._value|default(None) -%}
+                {%- if tool.packagingTool._raw -%}
+                    {%- set toolName = tool.packagingTool._raw['label']['value'] -%}
+                {%- endif -%}
+                {%- do pkgTools.append(toolName) -%}
+            {%- endfor -%}
+        {%- endif -%}
+        {%- if language -%}
+            {%- do langs.append({
+                "language": language,
+                "description": howUsed,
+                "packagingTools": pkgTools,
+            }) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- do result.smp.implementation.update({
+        "programmingLanguages": langs,
+    }) -%}
+{%- endif -%}
+{%- if object.implementation.usesFiles._value is true -%}
+    {%- do result.smp.implementation.update({
+        "files": {
+            "uses": True,
+            "anyNonOpenStandard": object.implementation.usesFiles.anyNonOpenStandard._value|default(None),
+            "reason": None,
+        },
+    }) -%}
+    {%- if object.implementation.usesFiles.anyNonOpenStandard._value is true -%}
+        {%- do result.smp.implementation.files.update({
+            "reason": object.implementation.usesFiles.anyNonOpenStandard.reason._value|default(None),
+        }) -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if object.implementation.usesProtocols._value is true -%}
+    {%- do result.smp.implementation.update({
+        "protocols": {
+            "uses": True,
+            "anyNonOpenStandard": object.implementation.usesProtocols.anyNonOpenStandard._value|default(None),
+            "reason": None,
+        },
+    }) -%}
+    {%- if object.implementation.usesProtocols.anyNonOpenStandard._value is true -%}
+        {%- do result.smp.implementation.protocols.update({
+            "reason": object.implementation.usesProtocols.anyNonOpenStandard.reason._value|default(None),
+        }) -%}
+    {%- endif -%}
+{%- elif object.implementation.usesProtocols._value is false -%}
+    {%- do result.smp.implementation.update({
+        "protocols": {
+            "uses": False,
+        },
+    }) -%}
+{%- endif -%}
+{%- if object.implementation.usesVCS._value is true -%}
+    {%- do result.smp.implementation.update({
+        "vcs": {
+            "uses": True,
+        },
+    }) -%}
+    {%- if object.implementation.usesVCS.vcs|default([]) -%}
+        {%- set vcsItems = [] -%}
+        {%- for vcs in object.implementation.usesVCS.vcs|default([]) -%}
+            {%- set type = vcs.type._value|default(None) -%}
+            {%- set url = vcs.url._value|default(None) -%}
+            {%- if type or url -%}
+                {%- do vcsItems.append({
+                    "type": type,
+                    "url": url,
+                }) -%}
+            {%- endif -%}
+        {%- endfor -%}
+        {%- do result.smp.implementation.vcs.update({
+            "vcs": vcsItems,
+        }) -%}
+    {%- endif -%}
+{%- elif object.implementation.usesVCS._value is false -%}
+    {%- do result.smp.implementation.update({
+        "vcs": {
+            "uses": False,
+        },
+    }) -%}
+{%- endif -%}
+
+{#- Mapping [Testing and QA] -#}
+{%- if object.testing.hasAutomatedTests._value is true -%}
+    {%- do result.smp.testingQa.automated.update({
+        "uses": True,
+        "types": object.testing.hasAutomatedTests.types|map(attribute="_label")|list,
+        "ci": object.testing.hasAutomatedTests.usesCI._value|default(None),
+    }) -%}
+    {%- if object.testing.hasAutomatedTests.usesCI._value -%}
+        {%- do result.smp.testingQa.automated.update({
+            "passBeforeMerge": object.testing.hasAutomatedTests.usesCI.passBeforeMerge._value|default(None),
+        }) -%}
+    {%- endif -%}
+{%- elif object.testing.hasAutomatedTests._value is false -%}
+    {%- do result.smp.testingQa.automated.update({
+        "uses": False,
+        "reason": object.testing.hasAutomatedTests.whyNot._value|default(None),
+    }) -%}
+{%- endif -%}
+{%- if object.testing.hasManualTests._value is true -%}
+    {%- do result.smp.testingQa.manual.update({
+        "uses": True,
+        "types": object.testing.hasManualTests.types|map(attribute="_label")|list,
+        "docs": object.testing.hasManualTests.hasDocumentation._value|default(None),
+    }) -%}
+{%- elif object.testing.hasManualTests._value is false -%}
+    {%- do result.smp.testingQa.manual.update({
+        "uses": False,
+        "reason": object.testing.hasManualTests.reason._value|default(None),
+    }) -%}
+{%- endif -%}
+{%- if object.testing.usesStaticAnalysis._value is true -%}
+    {%- do result.smp.testingQa.staticAnalysis.update({
+        "uses": True,
+        "description": object.testing.usesStaticAnalysis.description._value|default(None),
+        "types": object.testing.usesStaticAnalysis.types|map(attribute="_label")|list,
+        "ci": object.testing.usesStaticAnalysis.usesCI._value|default(None),
+    }) -%}
+    {%- if object.testing.usesStaticAnalysis.usesCI._value -%}
+        {%- do result.smp.testingQa.staticAnalysis.update({
+            "passBeforeMerge": object.testing.usesStaticAnalysis.usesCI.passBeforeMerge._value|default(None),
+        }) -%}
+    {%- endif -%}
+{%- elif object.testing.usesStaticAnalysis._value is false -%}
+    {%- do result.smp.testingQa.staticAnalysis.update({
+        "uses": False,
+        "reason": object.testing.usesStaticAnalysis.whyNot._value|default(None),
+    }) -%}
+{%- endif -%}
+{%- if object.testing.usesDynamicAnalysis._value is true -%}
+    {%- do result.smp.testingQa.dynamicAnalysis.update({
+        "uses": True,
+        "description": object.testing.usesDynamicAnalysis.description._value|default(None),
+        "types": object.testing.usesDynamicAnalysis.types|map(attribute="_label")|list,
+    }) -%}
+{%- elif object.testing.usesDynamicAnalysis._value is false -%}
+    {%- do result.smp.testingQa.dynamicAnalysis.update({
+        "uses": False,
+        "reason": object.testing.usesDynamicAnalysis.whyNot._value|default(None),
+    }) -%}
+{%- endif -%}
+{%- if object.testing.usesCodeReview._value is true -%}
+    {%- do result.smp.testingQa.codeReview.update({
+        "uses": True,
+        "aspects": object.testing.usesCodeReview.aspects|map(attribute="_label")|list,
+        "description": object.testing.usesCodeReview.description._value|default(None),
+        "mandatory": object.testing.usesCodeReview.isMandatory._value|default(None),
+        "howAssigned": object.testing.usesCodeReview.howAssigned._value|default(None),
+        "howConstructive": object.testing.usesCodeReview.howConstructive._value|default(None),
+        "hasChecklist": object.testing.usesCodeReview.hasChecklist._value|default(None),
+        "hasAutomation": object.testing.usesCodeReview.hasAutomation._value|default(None),
+    }) -%}
+    {%- if object.testing.usesCodeReview.hasChecklist._value -%}
+        {%- do result.smp.testingQa.codeReview.update({
+            "checklist": object.testing.usesCodeReview.hasChecklist.location._value,
+        }) -%}
+    {%- endif -%}
+    {%- if object.testing.usesCodeReview.hasAutomation._value -%}
+        {%- do result.smp.testingQa.codeReview.update({
+            "automation": object.testing.usesCodeReview.hasAutomation.whatTools._value,
+        }) -%}
+    {%- endif -%}
+{%- elif object.testing.usesCodeReview._value is false -%}
+    {%- do result.smp.testingQa.codeReview.update({
+        "uses": False,
+        "reason": object.testing.usesCodeReview.whyNot._value|default(None),
+    }) -%}
+{%- endif -%}
+{%- if object.testing.hasSampleData._value == "yes" -%}
+    {%- do result.smp.testingQa.sampleData.update({
+        "uses": True,
+        "description": object.testing.hasSampleData.description._value|default(None),
+    }) -%}
+{%- elif object.testing.hasSampleData._value == "no" -%}
+    {%- do result.smp.testingQa.sampleData.update({
+        "uses": False,
+        "reason": object.testing.hasSampleData.whyNot._value|default(None),
+    }) -%}
+{%- elif object.testing.hasSampleData._value == "na" -%}
+    {%- do result.smp.testingQa.sampleData.update({
+        "uses": "not-applicable",
+    }) -%}
+{%- endif -%}
+
+{#- Mapping [Versioning and Releases] -#}
+{%- if object.versioning.usesPIDs._value is true -%}
+    {%- do result.smp.versioningReleases.pids.update({
+        "uses": True,
+    }) -%}
+    {%- if object.versioning.usesPIDs.pids|default([]) -%}
+        {%- set pids = [] -%}
+        {%- for pid in object.versioning.usesPIDs.pids|default([]) -%}
+            {%- set system = pid.system._value|default(None) -%}
+            {%- set description = pid.description._value|default(None) -%}
+            {%- if pid.system._raw -%}
+                {%- set system = pid.system._raw['label']['value'] -%}
+            {%- endif -%}
+            {%- if system -%}
+                {%- do pids.append({
+                    "system": system,
+                    "description": description,
+                }) -%}
+            {%- endif -%}
+        {%- endfor -%}
+        {%- do result.smp.versioningReleases.pids.update({
+            "pids": pids,
+        }) -%}
+    {%- endif -%}
+{%- elif object.versioning.usesPIDs._value is false -%}
+    {%- do result.smp.versioningReleases.pids.update({
+        "uses": False,
+    }) -%}
+{%- endif -%}
+{%- if object.versioning.usesRegistries._value is true -%}
+    {%- do result.smp.versioningReleases.registries.update({
+        "uses": True,
+    }) -%}
+    {%- if object.versioning.usesRegistries.registries|default([]) -%}
+        {%- set registries = [] -%}
+        {%- for registry in object.versioning.usesRegistries.registries|default([]) -%}
+            {%- set reg = registry.registry._value|default(None) -%}
+            {%- set record = registry.record._value|default(None) -%}
+            {%- if reg or record -%}
+                {%- do registries.append({
+                    "registry": reg,
+                    "record": record,
+                }) -%}
+            {%- endif -%}
+        {%- endfor -%}
+        {%- do result.smp.versioningReleases.registries.update({
+            "registries": registries,
+        }) -%}
+    {%- endif -%}
+{%- elif object.versioning.usesRegistries._value is false -%}
+    {%- do result.smp.versioningReleases.registries.update({
+        "uses": False,
+    }) -%}
+{%- endif -%}
+{%- if object.versioning.usesReleases._value is true -%}
+    {%- set hasChangelog = object.versioning.usesReleases.hasChangelog._value|default(None) -%}
+    {%- set changelog = [] -%}
+    {%- set howDecide = object.versioning.usesReleases.howDecide._value|default(None) -%}
+    {%- set howDecideOther = None -%}
+    {%- set scheme = object.versioning.usesReleases.versioningScheme._value|default(None) -%}
+    {%- set schemeOther = None -%}
+    {%- if hasChangelog -%}
+        {%- set changelog = object.versioning.usesReleases.hasChangelog.locations|map(attribute="_value")|list -%}
+    {%- endif -%}
+    {%- if scheme == "other" -%}
+        {%- set schemeOther = object.versioning.usesReleases.versioningScheme.other._value|default(None) -%}
+    {%- endif -%}
+    {%- if howDecide == "other" -%}
+        {%- set howDecideOther = object.versioning.usesReleases.howDecide.other._value|default(None) -%}
+    {%- endif -%}
+    {%- do result.smp.versioningReleases.releases.update({
+        "uses": True,
+        "schema": scheme,
+        "schemaOther": schemeOther,
+        "when": howDecide,
+        "whenOther": howDecideOther,
+        "hasChangelog": hasChangelog,
+        "changelog": changelog,
+    }) -%}
+{%- elif object.versioning.usesReleases._value is false -%}
+    {%- do result.smp.versioningReleases.releases.update({
+        "uses": False,
+        "reason": object.versioning.usesReleases.reason._value|default(None),
+    }) -%}
+{%- endif -%}
+
+{#- Mapping [Deployment and Delivery] -#}
+{%- if object.delivery.hasMinimalRequirements._value == "yes" -%}
+    {%- do result.smp.deploymentDelivery.minRequirements.update({
+        "uses": True,
+        "cpu": object.delivery.hasMinimalRequirements.cpu._value|default(None),
+        "memory": object.delivery.hasMinimalRequirements.memory._value|default(None),
+        "storage": object.delivery.hasMinimalRequirements.storage._value|default(None),
+        "gpu": object.delivery.hasMinimalRequirements.gpu._value|default(None),
+        "other": object.delivery.hasMinimalRequirements.other._value|default(None),
+    }) -%}
+{%- elif object.delivery.hasMinimalRequirements._value == "no" -%}
+    {%- do result.smp.deploymentDelivery.minRequirements.update({
+        "uses": False,
+    }) -%}
+{%- elif object.delivery.hasMinimalRequirements._value == "na" -%}
+    {%- do result.smp.deploymentDelivery.minRequirements.update({
+        "uses": "not-applicable",
+    }) -%}
+{%- endif -%}
+{%- if object.delivery.operatingSystems -%}
+    {%- set operatingSystems = [] -%}
+    {%- for os in object.delivery.operatingSystems|default([]) -%}
+        {%- set name = os.operatingSystem._value|default(None) -%}
+        {%- set concerns = None -%}
+        {%- if os.hasSpecificConcerns._value -%}
+            {%- set concerns = os.hasSpecificConcerns.concerns._value|default(None) -%}
+        {%- endif -%}
+        {%- if name -%}
+            {%- do operatingSystems.append({
+                "name": name,
+                "concerns": concerns,
+            }) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- do result.smp.deploymentDelivery.update({
+        "operatingSystems": operatingSystems,
+    }) -%}
+{%- endif -%}
+{%- if object.delivery.runtimePlatforms -%}
+    {%- set runtimePlatforms = [] -%}
+    {%- for platform in object.delivery.runtimePlatforms|default([]) -%}
+        {%- set name = platform.runtimePlatform._value|default(None) -%}
+        {%- set concerns = None -%}
+        {%- if platform.hasSpecificConcerns._value -%}
+            {%- set concerns = platform.hasSpecificConcerns.concerns._value|default(None) -%}
+        {%- endif -%}
+        {%- if name -%}
+            {%- do runtimePlatforms.append({
+                "name": name,
+                "concerns": concerns,
+            }) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- do result.smp.deploymentDelivery.update({
+        "runtimePlatforms": runtimePlatforms,
+    }) -%}
+{%- endif -%}
+{%- if object.delivery.needsSpecialHardware._value is true -%}
+    {%- set hardware = [] -%}
+    {%- for hw in object.delivery.needsSpecialHardware.hardware|default([]) -%}
+        {%- set name = hw.name._value|default(None) -%}
+        {%- set description = hw.description._value|default(None) -%}
+        {%- if name -%}
+            {%- do hardware.append({
+                "name": name,
+                "description": description,
+            }) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- do result.smp.deploymentDelivery.specialHardware.update({
+        "needs": True,
+        "hardware": hardware,
+    }) -%}
+{%- elif object.delivery.needsSpecialHardware._value is false -%}
+    {%- do result.smp.deploymentDelivery.specialHardware.update({
+        "needs": False,
+    }) -%}
+{%- endif -%}
+{%- if object.delivery.hasReproducibility._value is true -%}
+    {%- do result.smp.deploymentDelivery.reproducibility.update({
+        "uses": True,
+        "description": object.delivery.hasReproducibility.description._value|default(None),
+    }) -%}
+{%- elif object.delivery.hasReproducibility._value is false -%}
+    {%- do result.smp.deploymentDelivery.reproducibility.update({
+        "uses": False,
+    }) -%}
+{%- endif -%}
+{%- if object.delivery.howDistributed -%}
+    {%- do result.smp.deploymentDelivery.update({
+        "howDistributed": object.delivery.howDistributed|map(attribute="_value")|list,
+    }) -%}
+{%- endif -%}
+{%- if object.delivery.isFree._value == "yes" -%}
+    {%- do result.smp.deploymentDelivery.access.update({
+        "isFree": "yes",
+    }) -%}
+{%- elif object.delivery.isFree._value == "onlyInternal" -%}
+    {%- do result.smp.deploymentDelivery.access.update({
+        "isFree": "only-internal",
+    }) -%}
+{%- elif object.delivery.isFree._value == "no" -%}
+    {%- do result.smp.deploymentDelivery.access.update({
+        "isFree": "no",
+        "paymentModel": object.delivery.isFree.other._value|default(None),
+    }) -%}
+{%- endif -%}
+{%- if object.delivery.hasUserSupport._value is true -%}
+    {%- set issueTrackers = [] -%}
+    {%- for it in object.delivery.hasUserSupport.issueTrackers|default([]) -%}
+        {%- set name = it.issueTracker._value|default(None) -%}
+        {%- set url = it.url._value|default(None) -%}
+        {%- if name or url -%}
+            {%- do issueTrackers.append({
+                "name": name,
+                "url": url,
+            }) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- do result.smp.deploymentDelivery.userSupport.update({
+        "uses": True,
+        "description": object.delivery.hasUserSupport.description._value|default(None),
+        "level": object.delivery.hasUserSupport.level._value|default(None),
+        "issueTrackers": issueTrackers,
+    }) -%}
+{%- elif object.delivery.hasUserSupport._value is false -%}
+    {%- do result.smp.deploymentDelivery.userSupport.update({
+        "uses": False,
+    }) -%}
+{%- endif -%}
